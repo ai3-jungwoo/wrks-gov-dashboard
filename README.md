@@ -1,36 +1,167 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wrks.ai 공공 고객사 대시보드
 
-## Getting Started
+공공기관 AI 서비스 활용 현황을 시각화하는 대시보드입니다.
 
-First, run the development server:
+## 기술 스택
+
+- **Framework**: Next.js 16.1.6 (React 19)
+- **Styling**: Tailwind CSS
+- **Map Visualization**: D3.js v7.9.0
+- **Map Data**: southkorea-maps GeoJSON
+
+## 주요 기능
+
+### 1. 탭별 카테고리 분류
+- **교육청**: 시/도 교육청 (지도 시각화)
+- **지자체**: 시/군/구 기초 지자체 (지도 시각화)
+- **중앙행정기관**: 정부 부처 및 산하기관
+- **공공기관**: 공단, 연구원, 재단 등
+- **민간/대학**: 민간기업 및 대학교
+
+### 2. 지도 시각화
+- **시/도 단위**: 교육청 데이터 (광역 지자체 경계)
+- **시/군/구 단위**: 지자체 데이터 (기초 지자체 경계)
+- 사용금액 기준 색상 그라데이션
+- 지역 클릭 시 상세 정보 표시
+- 한글 지역명 라벨
+
+### 3. PoC 필터
+- 10만원 미만 = PoC(Proof of Concept)로 분류
+- 토글로 PoC 포함/제외 전환
+- PoC는 점선 테두리로 시각적 구분
+
+### 4. 교육청 상세 지표 (신규)
+- **활성사용자수**: 실제 서비스 이용 사용자
+- **전체가입자수**: 등록된 전체 사용자
+- **활성율**: (활성사용자 / 전체가입자) × 100%
+- **월평균 가격(전체 대비)**: 사용금액 / 전체가입자
+- **월평균 가격(활성 대비)**: 사용금액 / 활성사용자
+
+---
+
+## 진행 과정
+
+### Phase 1: 초기 설정
+- [x] Next.js 프로젝트 생성
+- [x] D3.js 지도 컴포넌트 구현
+- [x] 기본 데이터 구조 설계
+
+### Phase 2: 지도 시각화 개선
+- [x] GeoJSON 데이터 연동 (southkorea-maps)
+- [x] 영어 → 한글 지역명 매핑 (REGION_EN_TO_KR)
+- [x] 한글 → 영어 역매핑 (REGION_KR_TO_EN) - 시/군/구 매칭용
+- [x] SVG 그룹 분리 (지도 / 라벨) - hover 시 라벨 깜빡임 해결
+- [x] fitSize + translate 충돌 해결
+
+### Phase 3: 데이터 분류 체계화
+- [x] `_classified.json` 기준으로 데이터 재분류
+- [x] 교육청 / 지자체 / 중앙행정기관 / 공공기관 / 민간/대학 분리
+- [x] 시/도청 데이터 공공기관으로 이동 (충청북도, 경상남도청)
+- [x] 잘못 분류된 기관 수정 (광주광역시도시공사, 경남소방 → 공공기관)
+
+### Phase 4: UI/UX 개선
+- [x] 5개 탭 UI 구현 (색상별 구분)
+- [x] 비지도 탭 카드 그리드 레이아웃
+- [x] PoC 필터 토글 추가
+- [x] 요약 통계 (총 사용금액, 총 사용량, 고객사 수)
+
+### Phase 5: 교육청 지표 추가
+- [x] Client 인터페이스에 activeUsers, totalUsers 필드 추가
+- [x] 울산교육청 + 울산교육청 우리아이 데이터 병합
+- [x] 교육청별 활성사용자/전체가입자 데이터 입력
+- [x] 활성율 계산 및 표시
+- [x] 월평균 가격 (전체/활성 대비) 계산 및 표시
+- [x] 교육청 탭 전용 요약 통계 추가
+
+---
+
+## TODO (할 일)
+
+### 데이터 관련
+- [ ] 지자체 탭 activeUsers, totalUsers 데이터 추가
+- [ ] 중앙행정기관 사용자 데이터 추가
+- [ ] 공공기관 사용자 데이터 추가
+- [ ] 월별 추이 데이터 구조 설계
+- [ ] 실시간 API 연동 (현재는 하드코딩)
+
+### 시각화 개선
+- [ ] 지도 확대/축소 기능
+- [ ] 지역 클릭 시 줌인 애니메이션
+- [ ] 월별/분기별 추이 차트 추가
+- [ ] 전년 대비 성장률 표시
+
+### 기능 추가
+- [ ] 검색 기능 (기관명 검색)
+- [ ] 정렬 옵션 (사용금액, 사용량, 활성율 등)
+- [ ] CSV/Excel 내보내기
+- [ ] 인쇄용 리포트 생성
+
+### UI/UX
+- [ ] 반응형 모바일 최적화
+- [ ] 다크모드 지원
+- [ ] 로딩 스켈레톤 개선
+- [ ] 툴팁 상세 정보 추가
+
+### 배포/운영
+- [ ] Vercel 배포 설정
+- [ ] 환경변수 관리
+- [ ] 에러 모니터링 (Sentry 등)
+- [ ] 접근 권한 관리 (인증)
+
+---
+
+## 교육청 데이터 현황
+
+| 교육청 | 활성사용자 | 전체가입자 | 활성율 | 월평균(전체) | 월평균(활성) |
+|--------|-----------|-----------|--------|-------------|-------------|
+| 서울시교육청 | 9,314 | 39,249 | 23.7% | 2,708원 | 11,413원 |
+| 경상북도교육청 | 3,152 | 6,702 | 47.0% | 8,609원 | 18,307원 |
+| 전라남도교육청 | 1,179 | 2,680 | 44.0% | 7,126원 | 16,198원 |
+| 부산교육청 | 3,731 | 24,021 | 15.5% | 614원 | 3,953원 |
+| 울산교육청 | 362 | 457 | 79.2% | 4,180원 | 5,278원 |
+| 대전광역시교육청 | - | 58 | - | 31원 | - |
+| 세종특별자치시교육청 | - | - | PoC | - | - |
+| 충청북도교육청 | - | - | PoC | - | - |
+| 인천광역시교육청 | - | - | PoC | - | - |
+
+---
+
+## 실행 방법
 
 ```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# 빌드
+npm run build
+
+# 프로덕션 실행
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 에서 확인
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 프로젝트 구조
 
-## Learn More
+```
+src/
+├── app/
+│   ├── page.tsx        # 메인 대시보드 페이지
+│   ├── layout.tsx      # 레이아웃
+│   └── globals.css     # 전역 스타일
+├── components/
+│   └── KoreaMap.tsx    # D3.js 한국 지도 컴포넌트
+└── data/
+    └── clients.ts      # 고객사 데이터 및 유틸리티
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 라이선스
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private - Wrks.ai Internal Use Only
