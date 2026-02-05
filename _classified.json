@@ -1,0 +1,1551 @@
+{
+  "교육청": [
+    {
+      "name": "서울시교육청",
+      "charge": 106292168,
+      "usage": 534491
+    },
+    {
+      "name": "경상북도교육청",
+      "charge": 57704414,
+      "usage": 240524
+    },
+    {
+      "name": "전라남도교육청",
+      "charge": 19096923,
+      "usage": 70416
+    },
+    {
+      "name": "부산교육청",
+      "charge": 14749784,
+      "usage": 104585
+    },
+    {
+      "name": "울산교육청 우리아이",
+      "charge": 1837115,
+      "usage": 6287
+    },
+    {
+      "name": "세종특별자치시교육청",
+      "charge": 92657,
+      "usage": 379
+    },
+    {
+      "name": "울산광역시교육청",
+      "charge": 73393,
+      "usage": 203
+    },
+    {
+      "name": "충청북도교육청",
+      "charge": 2983,
+      "usage": 21
+    },
+    {
+      "name": "대전광역시교육청",
+      "charge": 1794,
+      "usage": 13
+    },
+    {
+      "name": "인천광역시교육청(Demo)",
+      "charge": 883,
+      "usage": 3
+    }
+  ],
+  "민간기업": [
+    {
+      "name": "바로AI",
+      "charge": 39037887,
+      "usage": 186264
+    },
+    {
+      "name": "모노솔루션",
+      "charge": 24761,
+      "usage": 300
+    },
+    {
+      "name": "한국지역난방기술",
+      "charge": 4131,
+      "usage": 44
+    },
+    {
+      "name": "요거트월드",
+      "charge": 1473,
+      "usage": 9
+    },
+    {
+      "name": "에콜리안제천지사",
+      "charge": 92,
+      "usage": 3
+    },
+    {
+      "name": "AI3",
+      "charge": 58,
+      "usage": 2
+    }
+  ],
+  "지자체": [
+    {
+      "name": "수원특례시청",
+      "charge": 10287387,
+      "usage": 54714
+    },
+    {
+      "name": "창원특례시",
+      "charge": 9714009,
+      "usage": 73385
+    },
+    {
+      "name": "강동구청",
+      "charge": 3993167,
+      "usage": 24797
+    },
+    {
+      "name": "서초구청",
+      "charge": 3973222,
+      "usage": 20281
+    },
+    {
+      "name": "영등포구청",
+      "charge": 3108248,
+      "usage": 18033
+    },
+    {
+      "name": "성북구청",
+      "charge": 2793432,
+      "usage": 20618
+    },
+    {
+      "name": "장성군청",
+      "charge": 2497221,
+      "usage": 14979
+    },
+    {
+      "name": "광주광역시 동구청",
+      "charge": 2236987,
+      "usage": 13861
+    },
+    {
+      "name": "성동구청",
+      "charge": 2153298,
+      "usage": 20775
+    },
+    {
+      "name": "음성군청",
+      "charge": 1986386,
+      "usage": 17770
+    },
+    {
+      "name": "송파구청",
+      "charge": 1952891,
+      "usage": 13380
+    },
+    {
+      "name": "동작구청",
+      "charge": 1718474,
+      "usage": 14304
+    },
+    {
+      "name": "사천시",
+      "charge": 1166959,
+      "usage": 8726
+    },
+    {
+      "name": "강남구청",
+      "charge": 1134954,
+      "usage": 10595
+    },
+    {
+      "name": "광진구청",
+      "charge": 1115933,
+      "usage": 13341
+    },
+    {
+      "name": "강서구청",
+      "charge": 1083216,
+      "usage": 8744
+    },
+    {
+      "name": "서산시청",
+      "charge": 923232,
+      "usage": 9633
+    },
+    {
+      "name": "남해군청",
+      "charge": 881206,
+      "usage": 7859
+    },
+    {
+      "name": "하동군",
+      "charge": 767328,
+      "usage": 6910
+    },
+    {
+      "name": "광양시청",
+      "charge": 650583,
+      "usage": 10368
+    },
+    {
+      "name": "대전광역시 중구",
+      "charge": 630397,
+      "usage": 2301
+    },
+    {
+      "name": "용산구청",
+      "charge": 561833,
+      "usage": 2534
+    },
+    {
+      "name": "옥천군청",
+      "charge": 417395,
+      "usage": 2209
+    },
+    {
+      "name": "의왕시청",
+      "charge": 306002,
+      "usage": 9685
+    },
+    {
+      "name": "경남소방",
+      "charge": 198384,
+      "usage": 2047
+    },
+    {
+      "name": "동작구청+",
+      "charge": 98350,
+      "usage": 243
+    },
+    {
+      "name": "금천구의회",
+      "charge": 86762,
+      "usage": 451
+    },
+    {
+      "name": "괴산군청",
+      "charge": 74864,
+      "usage": 200
+    },
+    {
+      "name": "군포시청",
+      "charge": 34753,
+      "usage": 314
+    },
+    {
+      "name": "충청북도",
+      "charge": 34317,
+      "usage": 268
+    },
+    {
+      "name": "증평군청",
+      "charge": 31499,
+      "usage": 172
+    },
+    {
+      "name": "양산시청",
+      "charge": 28905,
+      "usage": 363
+    },
+    {
+      "name": "서초구의회",
+      "charge": 27090,
+      "usage": 175
+    },
+    {
+      "name": "부여군청",
+      "charge": 26628,
+      "usage": 80
+    },
+    {
+      "name": "서귀포시",
+      "charge": 25274,
+      "usage": 177
+    },
+    {
+      "name": "금천구청",
+      "charge": 18078,
+      "usage": 23
+    },
+    {
+      "name": "강진군청",
+      "charge": 17419,
+      "usage": 100
+    },
+    {
+      "name": "경상남도청",
+      "charge": 15462,
+      "usage": 27
+    },
+    {
+      "name": "광주광역시도시공사",
+      "charge": 13025,
+      "usage": 96
+    },
+    {
+      "name": "강릉시청",
+      "charge": 10718,
+      "usage": 41
+    },
+    {
+      "name": "서산시청",
+      "charge": 8931,
+      "usage": 100
+    },
+    {
+      "name": "은평구청",
+      "charge": 8551,
+      "usage": 60
+    },
+    {
+      "name": "강서구의회",
+      "charge": 7918,
+      "usage": 40
+    },
+    {
+      "name": "안양시청",
+      "charge": 4434,
+      "usage": 53
+    },
+    {
+      "name": "용산구청(임시)",
+      "charge": 3205,
+      "usage": 73
+    },
+    {
+      "name": "노원구청",
+      "charge": 2646,
+      "usage": 28
+    },
+    {
+      "name": "신안군청",
+      "charge": 55,
+      "usage": 1
+    },
+    {
+      "name": "아산시청",
+      "charge": 12,
+      "usage": 1
+    }
+  ],
+  "중앙행정기관": [
+    {
+      "name": "기후부",
+      "charge": 2304660,
+      "usage": 23565
+    },
+    {
+      "name": "통일부",
+      "charge": 440601,
+      "usage": 2220
+    },
+    {
+      "name": "농림축산검역본부 동물질병관리부",
+      "charge": 335903,
+      "usage": 720
+    },
+    {
+      "name": "농림축산검역본부 영남지역본부",
+      "charge": 292824,
+      "usage": 1461
+    },
+    {
+      "name": "농림축산검역본부 식물검역부",
+      "charge": 214686,
+      "usage": 1112
+    },
+    {
+      "name": "농림축산검역본부 인천공항지역본부",
+      "charge": 132047,
+      "usage": 301
+    },
+    {
+      "name": "농림축산검역본부 서울지역본부",
+      "charge": 91148,
+      "usage": 250
+    },
+    {
+      "name": "농림축산검역본부 중부지역본부",
+      "charge": 72516,
+      "usage": 190
+    },
+    {
+      "name": "농림축산검역본부 호남지역본부",
+      "charge": 58736,
+      "usage": 161
+    },
+    {
+      "name": "농림축산검역본부",
+      "charge": 32587,
+      "usage": 371
+    },
+    {
+      "name": "농림축산검역본부 제주지역본부",
+      "charge": 17186,
+      "usage": 154
+    },
+    {
+      "name": "대한민국정부",
+      "charge": 243,
+      "usage": 7
+    }
+  ],
+  "공공기관": [
+    {
+      "name": "국립공원공단",
+      "charge": 4206435,
+      "usage": 15791
+    },
+    {
+      "name": "서울경제진흥원",
+      "charge": 3326466,
+      "usage": 14718
+    },
+    {
+      "name": "제주개발공사",
+      "charge": 3027877,
+      "usage": 19331
+    },
+    {
+      "name": "세종시설관리공단",
+      "charge": 1087748,
+      "usage": 4562
+    },
+    {
+      "name": "우체국금융개발원",
+      "charge": 641929,
+      "usage": 2853
+    },
+    {
+      "name": "한국개발연구원",
+      "charge": 446931,
+      "usage": 1527
+    },
+    {
+      "name": "한국원자력환경복원연구원",
+      "charge": 375383,
+      "usage": 1302
+    },
+    {
+      "name": "남북하나재단",
+      "charge": 333638,
+      "usage": 2334
+    },
+    {
+      "name": "서울예술단",
+      "charge": 322746,
+      "usage": 1680
+    },
+    {
+      "name": "서울투자진흥재단",
+      "charge": 284242,
+      "usage": 1860
+    },
+    {
+      "name": "노원구시설관리공단",
+      "charge": 264996,
+      "usage": 1209
+    },
+    {
+      "name": "한국전기안전공사",
+      "charge": 248715,
+      "usage": 1453
+    },
+    {
+      "name": "남북교류협력지원협회",
+      "charge": 154581,
+      "usage": 998
+    },
+    {
+      "name": "스포츠가치센터",
+      "charge": 126177,
+      "usage": 462
+    },
+    {
+      "name": "소마미술관",
+      "charge": 119038,
+      "usage": 571
+    },
+    {
+      "name": "성동구도시관리공단",
+      "charge": 111099,
+      "usage": 1294
+    },
+    {
+      "name": "대구2.28기념학생도서관",
+      "charge": 100288,
+      "usage": 765
+    },
+    {
+      "name": "국제개발협력센터",
+      "charge": 99527,
+      "usage": 121
+    },
+    {
+      "name": "한국산업은행",
+      "charge": 84727,
+      "usage": 354
+    },
+    {
+      "name": "하남도시공사",
+      "charge": 60272,
+      "usage": 443
+    },
+    {
+      "name": "국제개발협력센터",
+      "charge": 48583,
+      "usage": 60
+    },
+    {
+      "name": "한국상하수도협회",
+      "charge": 37653,
+      "usage": 122
+    },
+    {
+      "name": "시립도서관",
+      "charge": 24063,
+      "usage": 110
+    },
+    {
+      "name": "한국농수산식품유통공사",
+      "charge": 19292,
+      "usage": 62
+    },
+    {
+      "name": "공무원연금공단",
+      "charge": 18576,
+      "usage": 221
+    },
+    {
+      "name": "지역스포츠과학지원센터",
+      "charge": 17433,
+      "usage": 76
+    },
+    {
+      "name": "사립학교교직원연금공단",
+      "charge": 17096,
+      "usage": 171
+    },
+    {
+      "name": "전주시설공단",
+      "charge": 16945,
+      "usage": 123
+    },
+    {
+      "name": "대전연구원",
+      "charge": 16796,
+      "usage": 96
+    },
+    {
+      "name": "차세대스포츠과학지원센터",
+      "charge": 15672,
+      "usage": 199
+    },
+    {
+      "name": "국가대표스포츠과학지원센터",
+      "charge": 12749,
+      "usage": 80
+    },
+    {
+      "name": "강북구도시관리공단",
+      "charge": 11693,
+      "usage": 173
+    },
+    {
+      "name": "도서관운영사무소",
+      "charge": 11159,
+      "usage": 28
+    },
+    {
+      "name": "서부보건소",
+      "charge": 11075,
+      "usage": 232
+    },
+    {
+      "name": "수원시정연구원",
+      "charge": 10739,
+      "usage": 40
+    },
+    {
+      "name": "동부보건소",
+      "charge": 7897,
+      "usage": 132
+    },
+    {
+      "name": "경정훈련원",
+      "charge": 4610,
+      "usage": 94
+    },
+    {
+      "name": "대구체력인증센터",
+      "charge": 4253,
+      "usage": 81
+    },
+    {
+      "name": "서귀포공립미술관",
+      "charge": 4185,
+      "usage": 117
+    },
+    {
+      "name": "인천교통공사",
+      "charge": 4083,
+      "usage": 35
+    },
+    {
+      "name": "노사발전재단",
+      "charge": 3520,
+      "usage": 14
+    },
+    {
+      "name": "한전KPS",
+      "charge": 2231,
+      "usage": 28
+    },
+    {
+      "name": "서귀포예술의전당",
+      "charge": 2223,
+      "usage": 74
+    },
+    {
+      "name": "한국마사회",
+      "charge": 1154,
+      "usage": 35
+    },
+    {
+      "name": "불법대응센터",
+      "charge": 700,
+      "usage": 14
+    }
+  ],
+  "기타": [
+    {
+      "name": "경영전략팀",
+      "charge": 491232,
+      "usage": 1557
+    },
+    {
+      "name": "AI스마트시티과",
+      "charge": 353404,
+      "usage": 1354
+    },
+    {
+      "name": "사용승인자",
+      "charge": 287981,
+      "usage": 3120
+    },
+    {
+      "name": "송산동",
+      "charge": 254662,
+      "usage": 799
+    },
+    {
+      "name": "방송팀",
+      "charge": 142120,
+      "usage": 221
+    },
+    {
+      "name": "기금정산팀",
+      "charge": 140789,
+      "usage": 138
+    },
+    {
+      "name": "경영지원부",
+      "charge": 138940,
+      "usage": 329
+    },
+    {
+      "name": "안전경영팀",
+      "charge": 127019,
+      "usage": 489
+    },
+    {
+      "name": "경영개발팀",
+      "charge": 120317,
+      "usage": 439
+    },
+    {
+      "name": "디지털혁신과",
+      "charge": 120131,
+      "usage": 773
+    },
+    {
+      "name": "중문동",
+      "charge": 116403,
+      "usage": 808
+    },
+    {
+      "name": "미래교육과",
+      "charge": 110588,
+      "usage": 828
+    },
+    {
+      "name": "표선면",
+      "charge": 102438,
+      "usage": 97
+    },
+    {
+      "name": "대외협력팀",
+      "charge": 97082,
+      "usage": 237
+    },
+    {
+      "name": "정방동",
+      "charge": 96153,
+      "usage": 300
+    },
+    {
+      "name": "지도자관리팀",
+      "charge": 86514,
+      "usage": 241
+    },
+    {
+      "name": "나이스 상담 비서",
+      "charge": 78791,
+      "usage": 338
+    },
+    {
+      "name": "스포츠인재육성팀",
+      "charge": 78482,
+      "usage": 242
+    },
+    {
+      "name": "AI융합보안팀",
+      "charge": 77954,
+      "usage": 365
+    },
+    {
+      "name": "예산팀",
+      "charge": 76183,
+      "usage": 404
+    },
+    {
+      "name": "글로벌지식협력단지운영단",
+      "charge": 75524,
+      "usage": 190
+    },
+    {
+      "name": "감사팀",
+      "charge": 73236,
+      "usage": 560
+    },
+    {
+      "name": "종합민원실",
+      "charge": 69450,
+      "usage": 432
+    },
+    {
+      "name": "국민체력사업팀",
+      "charge": 69431,
+      "usage": 475
+    },
+    {
+      "name": "교통행정과",
+      "charge": 66535,
+      "usage": 293
+    },
+    {
+      "name": "관광진흥과",
+      "charge": 63597,
+      "usage": 326
+    },
+    {
+      "name": "경영지원팀",
+      "charge": 60258,
+      "usage": 480
+    },
+    {
+      "name": "디지털보안팀",
+      "charge": 60109,
+      "usage": 82
+    },
+    {
+      "name": "AI미래성장팀",
+      "charge": 59001,
+      "usage": 164
+    },
+    {
+      "name": "성산읍",
+      "charge": 56362,
+      "usage": 531
+    },
+    {
+      "name": "시설지원부",
+      "charge": 51005,
+      "usage": 123
+    },
+    {
+      "name": "외부사용자",
+      "charge": 50325,
+      "usage": 144
+    },
+    {
+      "name": "건전화운영팀",
+      "charge": 49831,
+      "usage": 394
+    },
+    {
+      "name": "남원읍",
+      "charge": 48050,
+      "usage": 293
+    },
+    {
+      "name": "주민복지과",
+      "charge": 47040,
+      "usage": 966
+    },
+    {
+      "name": "위생관리과",
+      "charge": 46841,
+      "usage": 575
+    },
+    {
+      "name": "IT센터",
+      "charge": 46310,
+      "usage": 146
+    },
+    {
+      "name": "총무과",
+      "charge": 46050,
+      "usage": 372
+    },
+    {
+      "name": "민주시민교육과",
+      "charge": 45021,
+      "usage": 548
+    },
+    {
+      "name": "자치행정과",
+      "charge": 43483,
+      "usage": 554
+    },
+    {
+      "name": "지도자양성팀",
+      "charge": 42535,
+      "usage": 218
+    },
+    {
+      "name": "정책관",
+      "charge": 41985,
+      "usage": 313
+    },
+    {
+      "name": "공원경영팀",
+      "charge": 41936,
+      "usage": 354
+    },
+    {
+      "name": "2025정부경영평가",
+      "charge": 41883,
+      "usage": 181
+    },
+    {
+      "name": "ESG경영팀",
+      "charge": 40951,
+      "usage": 306
+    },
+    {
+      "name": "체육예술건강과",
+      "charge": 38529,
+      "usage": 504
+    },
+    {
+      "name": "공원녹지과",
+      "charge": 38277,
+      "usage": 667
+    },
+    {
+      "name": "민주시민교육과 학교지원팀",
+      "charge": 36786,
+      "usage": 118
+    },
+    {
+      "name": "IT운영팀",
+      "charge": 36395,
+      "usage": 340
+    },
+    {
+      "name": "기금총괄팀",
+      "charge": 35711,
+      "usage": 127
+    },
+    {
+      "name": "예래동",
+      "charge": 34979,
+      "usage": 145
+    },
+    {
+      "name": "감귤유통과",
+      "charge": 34796,
+      "usage": 407
+    },
+    {
+      "name": "괴산군사용자",
+      "charge": 34569,
+      "usage": 371
+    },
+    {
+      "name": "경영리스크관리실",
+      "charge": 34264,
+      "usage": 143
+    },
+    {
+      "name": "안덕면",
+      "charge": 33659,
+      "usage": 434
+    },
+    {
+      "name": "교육협력담당관",
+      "charge": 33630,
+      "usage": 208
+    },
+    {
+      "name": "시흥지사",
+      "charge": 32842,
+      "usage": 31
+    },
+    {
+      "name": "상하수도과",
+      "charge": 31672,
+      "usage": 574
+    },
+    {
+      "name": "도시과",
+      "charge": 30915,
+      "usage": 414
+    },
+    {
+      "name": "문화정보팀",
+      "charge": 28364,
+      "usage": 114
+    },
+    {
+      "name": "사업기획팀",
+      "charge": 28035,
+      "usage": 143
+    },
+    {
+      "name": "기초자치단체설치준비지원단",
+      "charge": 27672,
+      "usage": 386
+    },
+    {
+      "name": "글로벌지식협력단지운영단",
+      "charge": 27650,
+      "usage": 85
+    },
+    {
+      "name": "교육여건개선과",
+      "charge": 27538,
+      "usage": 260
+    },
+    {
+      "name": "재무관리팀",
+      "charge": 27003,
+      "usage": 189
+    },
+    {
+      "name": "디지털혁신팀",
+      "charge": 25393,
+      "usage": 137
+    },
+    {
+      "name": "중앙동",
+      "charge": 25053,
+      "usage": 320
+    },
+    {
+      "name": "스포츠단",
+      "charge": 23849,
+      "usage": 123
+    },
+    {
+      "name": "안전총괄과",
+      "charge": 23764,
+      "usage": 362
+    },
+    {
+      "name": "발매전산팀",
+      "charge": 21957,
+      "usage": 142
+    },
+    {
+      "name": "기획예산과",
+      "charge": 21559,
+      "usage": 288
+    },
+    {
+      "name": "회원지원처",
+      "charge": 21235,
+      "usage": 49
+    },
+    {
+      "name": "감귤농정과",
+      "charge": 20059,
+      "usage": 473
+    },
+    {
+      "name": "총무과",
+      "charge": 19717,
+      "usage": 363
+    },
+    {
+      "name": "생활환경과",
+      "charge": 19294,
+      "usage": 197
+    },
+    {
+      "name": "마을활력과",
+      "charge": 19153,
+      "usage": 260
+    },
+    {
+      "name": "재정복지과",
+      "charge": 18892,
+      "usage": 401
+    },
+    {
+      "name": "교육시설과",
+      "charge": 18752,
+      "usage": 327
+    },
+    {
+      "name": "미디어팀",
+      "charge": 18530,
+      "usage": 271
+    },
+    {
+      "name": "문화예술과",
+      "charge": 18298,
+      "usage": 432
+    },
+    {
+      "name": "기후환경과",
+      "charge": 18129,
+      "usage": 306
+    },
+    {
+      "name": "대정읍",
+      "charge": 18011,
+      "usage": 228
+    },
+    {
+      "name": "문화체육팀",
+      "charge": 17498,
+      "usage": 178
+    },
+    {
+      "name": "건설과",
+      "charge": 16506,
+      "usage": 238
+    },
+    {
+      "name": "스포츠레저팀",
+      "charge": 16185,
+      "usage": 115
+    },
+    {
+      "name": "유아특수교육과",
+      "charge": 16084,
+      "usage": 296
+    },
+    {
+      "name": "그림제작",
+      "charge": 15429,
+      "usage": 175
+    },
+    {
+      "name": "웰빙체육팀",
+      "charge": 15129,
+      "usage": 140
+    },
+    {
+      "name": "서홍동",
+      "charge": 14139,
+      "usage": 370
+    },
+    {
+      "name": "초등교육과",
+      "charge": 14022,
+      "usage": 165
+    },
+    {
+      "name": "감사관",
+      "charge": 14010,
+      "usage": 114
+    },
+    {
+      "name": "영천동",
+      "charge": 13789,
+      "usage": 164
+    },
+    {
+      "name": "고객지원팀",
+      "charge": 13724,
+      "usage": 130
+    },
+    {
+      "name": "중등교육과",
+      "charge": 13651,
+      "usage": 166
+    },
+    {
+      "name": "친환경농정과",
+      "charge": 12983,
+      "usage": 194
+    },
+    {
+      "name": "접경협력과",
+      "charge": 12843,
+      "usage": 161
+    },
+    {
+      "name": "해양수산과",
+      "charge": 12790,
+      "usage": 208
+    },
+    {
+      "name": "건설사업팀",
+      "charge": 12678,
+      "usage": 72
+    },
+    {
+      "name": "체육진흥과",
+      "charge": 12669,
+      "usage": 234
+    },
+    {
+      "name": "전략기획부",
+      "charge": 12512,
+      "usage": 45
+    },
+    {
+      "name": "노사협력과",
+      "charge": 12269,
+      "usage": 283
+    },
+    {
+      "name": "AI혁신TF단",
+      "charge": 10945,
+      "usage": 140
+    },
+    {
+      "name": "관광지관리소",
+      "charge": 10837,
+      "usage": 235
+    },
+    {
+      "name": "경제일자리과",
+      "charge": 10271,
+      "usage": 207
+    },
+    {
+      "name": "세무과",
+      "charge": 10245,
+      "usage": 117
+    },
+    {
+      "name": "안전점검팀",
+      "charge": 9995,
+      "usage": 142
+    },
+    {
+      "name": "AI 업무 포털",
+      "charge": 9161,
+      "usage": 65
+    },
+    {
+      "name": "투표권건전화팀",
+      "charge": 8765,
+      "usage": 27
+    },
+    {
+      "name": "건설관리실",
+      "charge": 8579,
+      "usage": 4
+    },
+    {
+      "name": "영업팀",
+      "charge": 8531,
+      "usage": 120
+    },
+    {
+      "name": "경륜선수지원팀",
+      "charge": 8475,
+      "usage": 104
+    },
+    {
+      "name": "사업지원팀",
+      "charge": 8434,
+      "usage": 94
+    },
+    {
+      "name": "상수도처",
+      "charge": 7999,
+      "usage": 161
+    },
+    {
+      "name": "인사팀",
+      "charge": 7585,
+      "usage": 98
+    },
+    {
+      "name": "동홍동",
+      "charge": 7392,
+      "usage": 86
+    },
+    {
+      "name": "영업총괄팀",
+      "charge": 7363,
+      "usage": 49
+    },
+    {
+      "name": "임대사업팀",
+      "charge": 6845,
+      "usage": 24
+    },
+    {
+      "name": "기금운용팀",
+      "charge": 6742,
+      "usage": 96
+    },
+    {
+      "name": "교육혁신과",
+      "charge": 6732,
+      "usage": 95
+    },
+    {
+      "name": "하수도처",
+      "charge": 6309,
+      "usage": 120
+    },
+    {
+      "name": "시설안전팀",
+      "charge": 6094,
+      "usage": 120
+    },
+    {
+      "name": "대륜동",
+      "charge": 5990,
+      "usage": 31
+    },
+    {
+      "name": "AI연구회",
+      "charge": 5243,
+      "usage": 96
+    },
+    {
+      "name": "체육인복지팀",
+      "charge": 5226,
+      "usage": 76
+    },
+    {
+      "name": "소방서장",
+      "charge": 5039,
+      "usage": 48
+    },
+    {
+      "name": "시민소통지원실",
+      "charge": 4400,
+      "usage": 68
+    },
+    {
+      "name": "여성가족과",
+      "charge": 4387,
+      "usage": 125
+    },
+    {
+      "name": "감사팀",
+      "charge": 4300,
+      "usage": 42
+    },
+    {
+      "name": "노인복지과",
+      "charge": 4281,
+      "usage": 145
+    },
+    {
+      "name": "장비운영팀",
+      "charge": 4272,
+      "usage": 97
+    },
+    {
+      "name": "청정축산과",
+      "charge": 4231,
+      "usage": 97
+    },
+    {
+      "name": "기술혁신팀",
+      "charge": 3827,
+      "usage": 151
+    },
+    {
+      "name": "성과평가팀",
+      "charge": 3779,
+      "usage": 5
+    },
+    {
+      "name": "건설관리팀",
+      "charge": 3575,
+      "usage": 45
+    },
+    {
+      "name": "지역성장지원팀",
+      "charge": 3543,
+      "usage": 68
+    },
+    {
+      "name": "주차사업팀",
+      "charge": 3385,
+      "usage": 37
+    },
+    {
+      "name": "디지털서비스팀",
+      "charge": 3224,
+      "usage": 48
+    },
+    {
+      "name": "안전총괄과",
+      "charge": 3179,
+      "usage": 85
+    },
+    {
+      "name": "안전지원팀",
+      "charge": 2956,
+      "usage": 78
+    },
+    {
+      "name": "산림휴양관리소",
+      "charge": 2893,
+      "usage": 153
+    },
+    {
+      "name": "평생교육과",
+      "charge": 2806,
+      "usage": 94
+    },
+    {
+      "name": "창업지원팀",
+      "charge": 2724,
+      "usage": 109
+    },
+    {
+      "name": "전략기획팀",
+      "charge": 2608,
+      "usage": 41
+    },
+    {
+      "name": "본부(대기)",
+      "charge": 2592,
+      "usage": 30
+    },
+    {
+      "name": "건강증진과",
+      "charge": 2369,
+      "usage": 36
+    },
+    {
+      "name": "재무회계팀",
+      "charge": 2273,
+      "usage": 52
+    },
+    {
+      "name": "보건행정과",
+      "charge": 2091,
+      "usage": 20
+    },
+    {
+      "name": "장애인복지과",
+      "charge": 1908,
+      "usage": 34
+    },
+    {
+      "name": "시설관리유지보수팀",
+      "charge": 1652,
+      "usage": 25
+    },
+    {
+      "name": "대천동",
+      "charge": 1634,
+      "usage": 10
+    },
+    {
+      "name": "스포츠복지팀",
+      "charge": 1452,
+      "usage": 19
+    },
+    {
+      "name": "생활보장팀",
+      "charge": 1244,
+      "usage": 15
+    },
+    {
+      "name": "스포츠복지실",
+      "charge": 1185,
+      "usage": 12
+    },
+    {
+      "name": "홍보팀",
+      "charge": 1109,
+      "usage": 18
+    },
+    {
+      "name": "행정지원팀",
+      "charge": 958,
+      "usage": 31
+    },
+    {
+      "name": "스포츠과학연구실",
+      "charge": 881,
+      "usage": 17
+    },
+    {
+      "name": "공보실",
+      "charge": 804,
+      "usage": 11
+    },
+    {
+      "name": "운영지원과/후생복무팀",
+      "charge": 767,
+      "usage": 11
+    },
+    {
+      "name": "관리팀",
+      "charge": 759,
+      "usage": 23
+    },
+    {
+      "name": "노동조합",
+      "charge": 567,
+      "usage": 13
+    },
+    {
+      "name": "기념사업팀",
+      "charge": 567,
+      "usage": 17
+    },
+    {
+      "name": "경륜훈련원",
+      "charge": 457,
+      "usage": 11
+    },
+    {
+      "name": "천지동",
+      "charge": 455,
+      "usage": 9
+    },
+    {
+      "name": "박물관팀",
+      "charge": 443,
+      "usage": 13
+    },
+    {
+      "name": "스포츠정책연구실",
+      "charge": 380,
+      "usage": 9
+    },
+    {
+      "name": "성북지사",
+      "charge": 371,
+      "usage": 10
+    },
+    {
+      "name": "공정팀",
+      "charge": 312,
+      "usage": 24
+    },
+    {
+      "name": "산업진흥팀",
+      "charge": 301,
+      "usage": 10
+    },
+    {
+      "name": "관악지사",
+      "charge": 287,
+      "usage": 7
+    },
+    {
+      "name": "인재개발팀",
+      "charge": 282,
+      "usage": 6
+    },
+    {
+      "name": "강남지사",
+      "charge": 273,
+      "usage": 11
+    },
+    {
+      "name": "건축과",
+      "charge": 267,
+      "usage": 6
+    },
+    {
+      "name": "투표권전산팀",
+      "charge": 176,
+      "usage": 7
+    },
+    {
+      "name": "스포츠진흥본부",
+      "charge": 148,
+      "usage": 3
+    },
+    {
+      "name": "효돈동",
+      "charge": 121,
+      "usage": 1
+    },
+    {
+      "name": "스포츠시설팀",
+      "charge": 115,
+      "usage": 7
+    },
+    {
+      "name": "기업금융지원팀",
+      "charge": 103,
+      "usage": 4
+    },
+    {
+      "name": "경륜기획팀",
+      "charge": 96,
+      "usage": 6
+    },
+    {
+      "name": "스포츠시설안전실",
+      "charge": 80,
+      "usage": 1
+    },
+    {
+      "name": "회계팀",
+      "charge": 66,
+      "usage": 3
+    },
+    {
+      "name": "투표권기획팀",
+      "charge": 53,
+      "usage": 3
+    },
+    {
+      "name": "사용신청자",
+      "charge": 31,
+      "usage": 1
+    },
+    {
+      "name": "경정서비스팀",
+      "charge": 30,
+      "usage": 4
+    },
+    {
+      "name": "안전관리팀",
+      "charge": 19,
+      "usage": 1
+    },
+    {
+      "name": "정보지원팀",
+      "charge": 5,
+      "usage": 1
+    }
+  ],
+  "대학교": [
+    {
+      "name": "숭의여자대학교",
+      "charge": 31799,
+      "usage": 100
+    }
+  ]
+}
