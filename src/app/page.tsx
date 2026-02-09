@@ -36,6 +36,14 @@ import {
   PAYMENT_METHOD_DESC,
   BILLING_TYPE_DESC,
 } from '@/data/clients';
+import {
+  fetchAllData,
+  saveContract,
+  deleteContract,
+  saveUserMetrics,
+  deleteUserMetrics,
+  UserMetrics,
+} from '@/lib/googleSheets';
 
 // ============================================================================
 // 동적 임포트 (SSR 비활성화)
@@ -80,16 +88,6 @@ interface TabConfig {
 
 /** PoC 판단 기준 금액 (10만원) */
 const POC_THRESHOLD = 100000;
-
-/** 로컬 스토리지 키 */
-const STORAGE_KEY_CONTRACT = 'gov-dashboard-contract-types';
-const STORAGE_KEY_USERS = 'gov-dashboard-user-metrics';
-
-/** 사용자 지표 타입 */
-interface UserMetrics {
-  activeUsers?: number;
-  totalUsers?: number;
-}
 
 /** 탭 설정 */
 const TAB_CONFIG: Record<TabType, TabConfig> = {
@@ -186,47 +184,30 @@ export default function Home() {
   const [userMetrics, setUserMetrics] = useState<Record<string, UserMetrics>>({});
   const [editingUserMetrics, setEditingUserMetrics] = useState<Client | null>(null);
 
+  // 로딩/저장 상태
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
   // ============================================================================
-  // 로컬 스토리지 동기화
+  // Google Sheets 동기화
   // ============================================================================
 
-  // 초기 로드: 로컬 스토리지에서 계약 정보 및 사용자 지표 불러오기
+  // 초기 로드: Google Sheets에서 데이터 불러오기
   useEffect(() => {
-    try {
-      const savedContract = localStorage.getItem(STORAGE_KEY_CONTRACT);
-      if (savedContract) {
-        setContractInfos(JSON.parse(savedContract));
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchAllData();
+        setContractInfos(data.contracts);
+        setUserMetrics(data.users);
+      } catch (e) {
+        console.error('Google Sheets에서 데이터를 불러오는데 실패했습니다:', e);
+      } finally {
+        setIsLoading(false);
       }
-      const savedUsers = localStorage.getItem(STORAGE_KEY_USERS);
-      if (savedUsers) {
-        setUserMetrics(JSON.parse(savedUsers));
-      }
-    } catch (e) {
-      console.warn('로컬 스토리지에서 데이터를 불러오는데 실패했습니다:', e);
-    }
+    };
+    loadData();
   }, []);
-
-  // 계약 정보 변경 시 로컬 스토리지에 저장
-  useEffect(() => {
-    if (Object.keys(contractInfos).length > 0) {
-      try {
-        localStorage.setItem(STORAGE_KEY_CONTRACT, JSON.stringify(contractInfos));
-      } catch (e) {
-        console.warn('로컬 스토리지에 저장하는데 실패했습니다:', e);
-      }
-    }
-  }, [contractInfos]);
-
-  // 사용자 지표 변경 시 로컬 스토리지에 저장
-  useEffect(() => {
-    if (Object.keys(userMetrics).length > 0) {
-      try {
-        localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(userMetrics));
-      } catch (e) {
-        console.warn('로컬 스토리지에 저장하는데 실패했습니다:', e);
-      }
-    }
-  }, [userMetrics]);
 
   // ============================================================================
   // 현재 탭 설정
@@ -342,20 +323,32 @@ export default function Home() {
   }, []);
 
   /**
-   * 계약 정보 변경 핸들러
+   * 계약 정보 변경 핸들러 (Google Sheets 저장)
    */
   const handleContractInfoChange = useCallback(
-    (clientName: string, info: ContractInfo | null) => {
-      setContractInfos((prev) => {
+    async (clientName: string, info: ContractInfo | null) => {
+      setIsSaving(true);
+      try {
         if (info === null) {
           // 삭제
-          const next = { ...prev };
-          delete next[clientName];
-          return next;
+          await deleteContract(clientName);
+          setContractInfos((prev) => {
+            const next = { ...prev };
+            delete next[clientName];
+            return next;
+          });
+        } else {
+          // 저장
+          await saveContract(clientName, info);
+          setContractInfos((prev) => ({ ...prev, [clientName]: info }));
         }
-        return { ...prev, [clientName]: info };
-      });
-      setEditingClient(null);
+      } catch (e) {
+        console.error('계약 정보 저장 실패:', e);
+        alert('저장에 실패했습니다. 다시 시도해주세요.');
+      } finally {
+        setIsSaving(false);
+        setEditingClient(null);
+      }
     },
     []
   );
@@ -371,19 +364,32 @@ export default function Home() {
   );
 
   /**
-   * 사용자 지표 변경 핸들러
+   * 사용자 지표 변경 핸들러 (Google Sheets 저장)
    */
   const handleUserMetricsChange = useCallback(
-    (clientName: string, metrics: UserMetrics | null) => {
-      setUserMetrics((prev) => {
+    async (clientName: string, metrics: UserMetrics | null) => {
+      setIsSaving(true);
+      try {
         if (metrics === null) {
-          const next = { ...prev };
-          delete next[clientName];
-          return next;
+          // 삭제
+          await deleteUserMetrics(clientName);
+          setUserMetrics((prev) => {
+            const next = { ...prev };
+            delete next[clientName];
+            return next;
+          });
+        } else {
+          // 저장
+          await saveUserMetrics(clientName, metrics);
+          setUserMetrics((prev) => ({ ...prev, [clientName]: metrics }));
         }
-        return { ...prev, [clientName]: metrics };
-      });
-      setEditingUserMetrics(null);
+      } catch (e) {
+        console.error('사용자 지표 저장 실패:', e);
+        alert('저장에 실패했습니다. 다시 시도해주세요.');
+      } finally {
+        setIsSaving(false);
+        setEditingUserMetrics(null);
+      }
     },
     []
   );
@@ -732,6 +738,28 @@ export default function Home() {
       </footer>
 
       {/* ================================================================== */}
+      {/* 초기 로딩 오버레이 */}
+      {/* ================================================================== */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+            <span className="text-sm text-slate-600">데이터 불러오는 중...</span>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================== */}
+      {/* 저장 중 인디케이터 */}
+      {/* ================================================================== */}
+      {isSaving && (
+        <div className="fixed top-4 right-4 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <span className="text-sm">저장 중...</span>
+        </div>
+      )}
+
+      {/* ================================================================== */}
       {/* 계약 정보 편집 모달 */}
       {/* ================================================================== */}
       {editingClient && (
@@ -740,6 +768,7 @@ export default function Home() {
           currentInfo={getContractInfo(editingClient.name)}
           onSave={(info) => handleContractInfoChange(editingClient.name, info)}
           onClose={() => setEditingClient(null)}
+          isSaving={isSaving}
         />
       )}
 
@@ -752,6 +781,7 @@ export default function Home() {
           currentMetrics={getUserMetrics(editingUserMetrics.name, editingUserMetrics)}
           onSave={(metrics) => handleUserMetricsChange(editingUserMetrics.name, metrics)}
           onClose={() => setEditingUserMetrics(null)}
+          isSaving={isSaving}
         />
       )}
     </div>
@@ -1149,6 +1179,7 @@ interface ContractInfoModalProps {
   currentInfo?: ContractInfo;
   onSave: (info: ContractInfo | null) => void;
   onClose: () => void;
+  isSaving?: boolean;
 }
 
 function ContractInfoModal({
@@ -1156,6 +1187,7 @@ function ContractInfoModal({
   currentInfo,
   onSave,
   onClose,
+  isSaving = false,
 }: ContractInfoModalProps) {
   const [info, setInfo] = useState<ContractInfo>(currentInfo || {});
 
@@ -1327,20 +1359,23 @@ function ContractInfoModal({
           {currentInfo && (
             <button
               onClick={() => onSave(null)}
-              className="flex-1 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              disabled={isSaving}
+              className="flex-1 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               삭제
             </button>
           )}
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            disabled={isSaving}
+            className="flex-1 py-2.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             취소
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 py-2.5 text-sm bg-slate-800 text-white hover:bg-slate-700 rounded-lg transition-colors"
+            disabled={isSaving}
+            className="flex-1 py-2.5 text-sm bg-slate-800 text-white hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             저장
           </button>
@@ -1359,6 +1394,7 @@ interface UserMetricsModalProps {
   currentMetrics: UserMetrics;
   onSave: (metrics: UserMetrics | null) => void;
   onClose: () => void;
+  isSaving?: boolean;
 }
 
 function UserMetricsModal({
@@ -1366,6 +1402,7 @@ function UserMetricsModal({
   currentMetrics,
   onSave,
   onClose,
+  isSaving = false,
 }: UserMetricsModalProps) {
   const [activeUsers, setActiveUsers] = useState<string>(
     currentMetrics.activeUsers?.toString() || ''
@@ -1478,20 +1515,23 @@ function UserMetricsModal({
           {(currentMetrics.activeUsers || currentMetrics.totalUsers) && (
             <button
               onClick={() => onSave(null)}
-              className="flex-1 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              disabled={isSaving}
+              className="flex-1 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               삭제
             </button>
           )}
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            disabled={isSaving}
+            className="flex-1 py-2.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             취소
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 py-2.5 text-sm bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors"
+            disabled={isSaving}
+            className="flex-1 py-2.5 text-sm bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             저장
           </button>
