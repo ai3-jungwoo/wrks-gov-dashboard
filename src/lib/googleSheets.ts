@@ -3,7 +3,9 @@
  *
  * 계약 정보와 사용자 지표를 Google Sheets에 저장/불러오기
  *
- * Google Apps Script는 CORS 제한이 있어서 특별한 방식으로 호출해야 함
+ * Google Apps Script:
+ * - GET (doGet): 읽기 전용
+ * - POST (doPost): 쓰기 작업 (302 redirect로 결과 반환)
  */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbwzFO4EoVbDWBxqT98RN0i9L_xulxECBf80t5wii1HJH0StCl8YRDCfeGr82ldBgW6Brw/exec';
@@ -21,35 +23,81 @@ export interface SheetData {
 }
 
 /**
- * Google Apps Script API 호출 (CORS 우회)
+ * GET 요청 (읽기용)
  */
-async function callAPI(params: Record<string, string>): Promise<Record<string, unknown>> {
-  // URL 파라미터로 전송 (CORS preflight 방지)
+async function callGetAPI(params: Record<string, string>): Promise<Record<string, unknown>> {
   const searchParams = new URLSearchParams(params);
   const url = `${API_URL}?${searchParams.toString()}`;
 
+  const response = await fetch(url, {
+    method: 'GET',
+    redirect: 'follow',
+  });
+
+  const text = await response.text();
+
+  if (text.startsWith('<!DOCTYPE') || text.startsWith('<HTML') || text.startsWith('<html')) {
+    console.error('API 오류 응답:', text.substring(0, 300));
+    throw new Error('API 오류');
+  }
+
+  return JSON.parse(text);
+}
+
+/**
+ * POST 요청 (쓰기용)
+ * Google Apps Script는 POST 결과를 302 redirect URL로 반환함
+ * 브라우저에서 cross-origin redirect를 따라가기 어려우므로 수동 처리
+ */
+async function callPostAPI(params: Record<string, string>): Promise<Record<string, unknown>> {
   try {
-    const response = await fetch(url, {
-      method: 'GET',
+    // 1차 시도: redirect: follow
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
       redirect: 'follow',
     });
 
     const text = await response.text();
+    console.log('POST 응답 상태:', response.status, '타입:', response.type);
+    console.log('POST 응답 내용:', text.substring(0, 200));
 
-    // HTML 응답인지 확인 (로그인 리다이렉트)
-    if (text.startsWith('<!DOCTYPE') || text.startsWith('<HTML')) {
-      console.error('Google 로그인이 필요합니다. 응답:', text.substring(0, 200));
-      throw new Error('Google 로그인이 필요합니다');
-    }
-
-    try {
+    // JSON 응답이면 성공
+    if (text.startsWith('{')) {
       return JSON.parse(text);
-    } catch {
-      console.error('JSON 파싱 실패:', text.substring(0, 500));
-      throw new Error('잘못된 응답 형식');
     }
+
+    // HTML redirect 페이지인 경우
+    if (text.includes('Moved Temporarily') || text.includes('HREF=')) {
+      // redirect URL 추출
+      const match = text.match(/HREF="([^"]+)"/i);
+      if (match && match[1]) {
+        const redirectUrl = match[1].replace(/&amp;/g, '&');
+        console.log('Redirect URL:', redirectUrl);
+
+        // redirect URL에서 결과 가져오기
+        const redirectResponse = await fetch(redirectUrl);
+        const redirectText = await redirectResponse.text();
+        console.log('Redirect 응답:', redirectText);
+
+        if (redirectText.startsWith('{')) {
+          return JSON.parse(redirectText);
+        }
+      }
+    }
+
+    // opaque 응답 처리 (no-cors 모드)
+    if (response.type === 'opaque') {
+      console.log('Opaque 응답 - 성공으로 간주');
+      return { success: true };
+    }
+
+    throw new Error('예상치 못한 응답 형식');
   } catch (error) {
-    console.error('API 호출 실패:', error);
+    console.error('POST API 호출 실패:', error);
     throw error;
   }
 }
@@ -59,9 +107,8 @@ async function callAPI(params: Record<string, string>): Promise<Record<string, u
  */
 export async function fetchAllData(): Promise<SheetData> {
   try {
-    const data = await callAPI({ action: 'getAll' });
+    const data = await callGetAPI({ action: 'getAll' });
 
-    // 숫자 변환 (Sheets에서 문자열로 올 수 있음)
     const users: Record<string, UserMetrics> = {};
     if (data.users && typeof data.users === 'object') {
       for (const [key, value] of Object.entries(data.users as Record<string, Record<string, unknown>>)) {
@@ -91,7 +138,7 @@ export async function saveContract(
   updatedBy?: string
 ): Promise<boolean> {
   try {
-    const result = await callAPI({
+    const result = await callPostAPI({
       action: 'saveContract',
       clientName,
       channel: info.channel || '',
@@ -100,6 +147,7 @@ export async function saveContract(
       note: info.note || '',
       updatedBy: updatedBy || 'dashboard',
     });
+    console.log('saveContract 결과:', result);
     return result.success === true;
   } catch (error) {
     console.error('계약 정보 저장 실패:', error);
@@ -112,7 +160,7 @@ export async function saveContract(
  */
 export async function deleteContract(clientName: string): Promise<boolean> {
   try {
-    const result = await callAPI({
+    const result = await callPostAPI({
       action: 'deleteContract',
       clientName,
     });
@@ -132,13 +180,14 @@ export async function saveUserMetrics(
   updatedBy?: string
 ): Promise<boolean> {
   try {
-    const result = await callAPI({
+    const result = await callPostAPI({
       action: 'saveUsers',
       clientName,
       activeUsers: metrics.activeUsers?.toString() ?? '',
       totalUsers: metrics.totalUsers?.toString() ?? '',
       updatedBy: updatedBy || 'dashboard',
     });
+    console.log('saveUserMetrics 결과:', result);
     return result.success === true;
   } catch (error) {
     console.error('사용자 지표 저장 실패:', error);
@@ -151,7 +200,7 @@ export async function saveUserMetrics(
  */
 export async function deleteUserMetrics(clientName: string): Promise<boolean> {
   try {
-    const result = await callAPI({
+    const result = await callPostAPI({
       action: 'deleteUsers',
       clientName,
     });
