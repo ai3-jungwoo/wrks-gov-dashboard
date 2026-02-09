@@ -187,6 +187,8 @@ export default function Home() {
   // 로딩/저장 상태
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
+  const [migrationLog, setMigrationLog] = useState<string[]>([]);
 
   // ============================================================================
   // Google Sheets 동기화
@@ -362,6 +364,82 @@ export default function Home() {
     },
     [contractInfos]
   );
+
+  /**
+   * 기존 데이터를 Google Sheets로 마이그레이션
+   */
+  const handleMigrateToSheets = useCallback(async () => {
+    if (!confirm('기존 교육청 사용자 데이터를 Google Sheets로 내보내시겠습니까?')) {
+      return;
+    }
+
+    setIsMigrating(true);
+    setMigrationLog([]);
+
+    const allData = [
+      ...educationData,
+      ...localGovData,
+      ...centralGovData,
+      ...publicInstitutionData,
+      ...provinceGovData,
+      ...privateData,
+      ...universityData,
+    ];
+
+    // 사용자 지표가 있는 항목만 필터
+    const dataWithMetrics = allData.filter(
+      (item) => item.activeUsers !== undefined || item.totalUsers !== undefined
+    );
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const item of dataWithMetrics) {
+      const metrics: UserMetrics = {};
+      if (item.activeUsers) metrics.activeUsers = item.activeUsers;
+      if (item.totalUsers) metrics.totalUsers = item.totalUsers;
+
+      setMigrationLog((prev) => [
+        ...prev,
+        `📤 ${item.name}: 활성=${item.activeUsers ?? '-'}, 전체=${item.totalUsers ?? '-'}`,
+      ]);
+
+      try {
+        const success = await saveUserMetrics(item.name, metrics);
+        if (success) {
+          setMigrationLog((prev) => [...prev, `   ✅ 저장 완료`]);
+          successCount++;
+        } else {
+          setMigrationLog((prev) => [...prev, `   ❌ 저장 실패`]);
+          failCount++;
+        }
+      } catch (e) {
+        setMigrationLog((prev) => [...prev, `   ❌ 오류: ${e}`]);
+        failCount++;
+      }
+
+      // API 호출 간격
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+
+    setMigrationLog((prev) => [
+      ...prev,
+      ``,
+      `========================================`,
+      `✅ 성공: ${successCount}건`,
+      `❌ 실패: ${failCount}건`,
+      `========================================`,
+    ]);
+
+    setIsMigrating(false);
+
+    // 완료 후 데이터 새로고침
+    if (successCount > 0) {
+      const data = await fetchAllData();
+      setContractInfos(data.contracts);
+      setUserMetrics(data.users);
+    }
+  }, []);
 
   /**
    * 사용자 지표 변경 핸들러 (Google Sheets 저장)
@@ -730,11 +808,43 @@ export default function Home() {
       {/* ================================================================== */}
       {/* Footer */}
       {/* ================================================================== */}
-      <footer className="border-t border-slate-200 bg-white mt-8 py-5 text-center">
-        <p className="text-xs text-slate-400">
-          데이터 출처 · Wrks.ai 내부 고객 DB | 금액 단위: 원 | PoC 기준: 10만원
-          미만
-        </p>
+      <footer className="border-t border-slate-200 bg-white mt-8 py-5">
+        <div className="max-w-7xl mx-auto px-4">
+          <p className="text-xs text-slate-400 text-center">
+            데이터 출처 · Wrks.ai 내부 고객 DB | 금액 단위: 원 | PoC 기준: 10만원
+            미만
+          </p>
+
+          {/* 관리자 도구 */}
+          <details className="mt-4">
+            <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600">
+              🔧 관리자 도구
+            </summary>
+            <div className="mt-3 p-4 bg-slate-50 rounded-lg">
+              <div className="flex items-center gap-3 flex-wrap">
+                <button
+                  onClick={handleMigrateToSheets}
+                  disabled={isMigrating}
+                  className="px-3 py-1.5 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isMigrating ? '마이그레이션 중...' : '📤 기존 데이터 → Google Sheets'}
+                </button>
+                <span className="text-xs text-slate-500">
+                  교육청 등 기존 사용자 수 데이터를 Sheet로 내보냅니다
+                </span>
+              </div>
+
+              {/* 마이그레이션 로그 */}
+              {migrationLog.length > 0 && (
+                <div className="mt-3 p-3 bg-slate-800 text-green-400 rounded font-mono text-xs max-h-60 overflow-y-auto">
+                  {migrationLog.map((log, i) => (
+                    <div key={i}>{log}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </details>
+        </div>
       </footer>
 
       {/* ================================================================== */}
