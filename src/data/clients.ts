@@ -1,11 +1,49 @@
+/**
+ * 계약 방식 타입
+ * - 'subscription': 구독형 (월정액)
+ * - 'usage': 사용량 기반
+ * - 'license': 라이선스 (일시불)
+ * - 'poc': PoC/시범운영
+ * - 'free': 무료/데모
+ * - undefined: 미지정
+ */
+export type ContractType = 'subscription' | 'usage' | 'license' | 'poc' | 'free';
+
+/**
+ * 계약 방식 레이블 (UI 표시용)
+ */
+export const CONTRACT_TYPE_LABELS: Record<ContractType, string> = {
+  subscription: '구독형',
+  usage: '사용량 기반',
+  license: '라이선스',
+  poc: 'PoC',
+  free: '무료/데모',
+};
+
+/**
+ * 계약 방식 색상 (UI 표시용)
+ */
+export const CONTRACT_TYPE_COLORS: Record<ContractType, { bg: string; text: string; border: string }> = {
+  subscription: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-300' },
+  usage: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-300' },
+  license: { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-300' },
+  poc: { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-300' },
+  free: { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-300' },
+};
+
+/**
+ * 고객사 데이터 인터페이스
+ */
 export interface Client {
   name: string;
   region?: string;
   subRegion?: string;
   charge: number;
   usage: number;
-  activeUsers?: number;  // 활성사용자수
-  totalUsers?: number;   // 전체가입자수
+  activeUsers?: number;   // 활성사용자수
+  totalUsers?: number;    // 전체가입자수
+  contractType?: ContractType;  // 계약 방식
+  contractNote?: string;  // 계약 관련 메모 (선택)
 }
 
 // 교육청 (시/도 단위)
