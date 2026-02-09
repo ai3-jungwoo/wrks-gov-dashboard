@@ -46,19 +46,18 @@ async function callGetAPI(params: Record<string, string>): Promise<Record<string
 
 /**
  * POST 요청 (쓰기용)
+ * Content-Type 헤더 없이 보내서 CORS preflight 방지
  * Google Apps Script는 POST 결과를 302 redirect URL로 반환함
- * 브라우저에서 cross-origin redirect를 따라가기 어려우므로 수동 처리
  */
 async function callPostAPI(params: Record<string, string>): Promise<Record<string, unknown>> {
   try {
-    // 1차 시도: redirect: follow
+    // Content-Type 없이 POST (preflight 방지)
+    // fetch는 body가 string이면 자동으로 text/plain 사용 (simple request)
     const response = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(params),
       redirect: 'follow',
+      mode: 'cors',
     });
 
     const text = await response.text();
@@ -70,15 +69,13 @@ async function callPostAPI(params: Record<string, string>): Promise<Record<strin
       return JSON.parse(text);
     }
 
-    // HTML redirect 페이지인 경우
+    // HTML redirect 페이지인 경우 - redirect URL 추출
     if (text.includes('Moved Temporarily') || text.includes('HREF=')) {
-      // redirect URL 추출
       const match = text.match(/HREF="([^"]+)"/i);
       if (match && match[1]) {
         const redirectUrl = match[1].replace(/&amp;/g, '&');
         console.log('Redirect URL:', redirectUrl);
 
-        // redirect URL에서 결과 가져오기
         const redirectResponse = await fetch(redirectUrl);
         const redirectText = await redirectResponse.text();
         console.log('Redirect 응답:', redirectText);
@@ -87,12 +84,6 @@ async function callPostAPI(params: Record<string, string>): Promise<Record<strin
           return JSON.parse(redirectText);
         }
       }
-    }
-
-    // opaque 응답 처리 (no-cors 모드)
-    if (response.type === 'opaque') {
-      console.log('Opaque 응답 - 성공으로 간주');
-      return { success: true };
     }
 
     throw new Error('예상치 못한 응답 형식');
