@@ -22,9 +22,19 @@ import {
   formatMoney,
   AggregatedData,
   Client,
-  ContractType,
-  CONTRACT_TYPE_LABELS,
-  CONTRACT_TYPE_COLORS,
+  ContractInfo,
+  ContractChannel,
+  PaymentMethod,
+  BillingType,
+  CONTRACT_CHANNEL_LABELS,
+  PAYMENT_METHOD_LABELS,
+  BILLING_TYPE_LABELS,
+  CONTRACT_CHANNEL_COLORS,
+  PAYMENT_METHOD_COLORS,
+  BILLING_TYPE_COLORS,
+  CONTRACT_CHANNEL_DESC,
+  PAYMENT_METHOD_DESC,
+  BILLING_TYPE_DESC,
 } from '@/data/clients';
 
 // ============================================================================
@@ -161,36 +171,36 @@ export default function Home() {
   } | null>(null);
   const [showPoc, setShowPoc] = useState(true);
 
-  // 계약 방식 수정용 상태
-  const [contractTypes, setContractTypes] = useState<Record<string, ContractType>>({});
+  // 계약 정보 수정용 상태
+  const [contractInfos, setContractInfos] = useState<Record<string, ContractInfo>>({});
   const [editingClient, setEditingClient] = useState<Client | null>(null);
 
   // ============================================================================
   // 로컬 스토리지 동기화
   // ============================================================================
 
-  // 초기 로드: 로컬 스토리지에서 계약 방식 불러오기
+  // 초기 로드: 로컬 스토리지에서 계약 정보 불러오기
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setContractTypes(JSON.parse(saved));
+        setContractInfos(JSON.parse(saved));
       }
     } catch (e) {
-      console.warn('로컬 스토리지에서 계약 방식을 불러오는데 실패했습니다:', e);
+      console.warn('로컬 스토리지에서 계약 정보를 불러오는데 실패했습니다:', e);
     }
   }, []);
 
-  // 계약 방식 변경 시 로컬 스토리지에 저장
+  // 계약 정보 변경 시 로컬 스토리지에 저장
   useEffect(() => {
-    if (Object.keys(contractTypes).length > 0) {
+    if (Object.keys(contractInfos).length > 0) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(contractTypes));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(contractInfos));
       } catch (e) {
         console.warn('로컬 스토리지에 저장하는데 실패했습니다:', e);
       }
     }
-  }, [contractTypes]);
+  }, [contractInfos]);
 
   // ============================================================================
   // 현재 탭 설정
@@ -291,18 +301,18 @@ export default function Home() {
   }, []);
 
   /**
-   * 계약 방식 변경 핸들러
+   * 계약 정보 변경 핸들러
    */
-  const handleContractTypeChange = useCallback(
-    (clientName: string, contractType: ContractType | undefined) => {
-      setContractTypes((prev) => {
-        if (contractType === undefined) {
+  const handleContractInfoChange = useCallback(
+    (clientName: string, info: ContractInfo | null) => {
+      setContractInfos((prev) => {
+        if (info === null) {
           // 삭제
           const next = { ...prev };
           delete next[clientName];
           return next;
         }
-        return { ...prev, [clientName]: contractType };
+        return { ...prev, [clientName]: info };
       });
       setEditingClient(null);
     },
@@ -310,13 +320,13 @@ export default function Home() {
   );
 
   /**
-   * 고객 항목에서 계약 방식 가져오기
+   * 고객 항목에서 계약 정보 가져오기
    */
-  const getContractType = useCallback(
-    (clientName: string): ContractType | undefined => {
-      return contractTypes[clientName];
+  const getContractInfo = useCallback(
+    (clientName: string): ContractInfo | undefined => {
+      return contractInfos[clientName];
     },
-    [contractTypes]
+    [contractInfos]
   );
 
   // ============================================================================
@@ -556,7 +566,7 @@ export default function Home() {
                     item={item}
                     isPoc={item.charge < POC_THRESHOLD}
                     colorClass={config.colorClass}
-                    contractType={getContractType(item.name)}
+                    contractInfo={getContractInfo(item.name)}
                     onEditContract={() => setEditingClient(item)}
                   />
                 ))}
@@ -603,7 +613,7 @@ export default function Home() {
                   isPoc={item.charge < POC_THRESHOLD}
                   colorClass={config.colorClass}
                   showUserMetrics={activeTab === 'education'}
-                  contractType={getContractType(item.name)}
+                  contractInfo={getContractInfo(item.name)}
                   onEditContract={() => setEditingClient(item)}
                 />
               ))}
@@ -623,13 +633,13 @@ export default function Home() {
       </footer>
 
       {/* ================================================================== */}
-      {/* 계약 방식 편집 모달 */}
+      {/* 계약 정보 편집 모달 */}
       {/* ================================================================== */}
       {editingClient && (
-        <ContractTypeModal
+        <ContractInfoModal
           client={editingClient}
-          currentType={getContractType(editingClient.name)}
-          onSave={(type) => handleContractTypeChange(editingClient.name, type)}
+          currentInfo={getContractInfo(editingClient.name)}
+          onSave={(info) => handleContractInfoChange(editingClient.name, info)}
           onClose={() => setEditingClient(null)}
         />
       )}
@@ -645,7 +655,7 @@ interface ClientCardProps {
   item: Client;
   isPoc: boolean;
   colorClass: { text: string; bg: string };
-  contractType?: ContractType;
+  contractInfo?: ContractInfo;
   onEditContract: () => void;
 }
 
@@ -653,11 +663,9 @@ function ClientCard({
   item,
   isPoc,
   colorClass,
-  contractType,
+  contractInfo,
   onEditContract,
 }: ClientCardProps) {
-  const contractColors = contractType ? CONTRACT_TYPE_COLORS[contractType] : null;
-
   return (
     <div
       className={`p-4 rounded-xl border-2 transition-all ${
@@ -687,17 +695,10 @@ function ClientCard({
         </div>
       </div>
 
-      {/* 계약 방식 */}
-      <button
-        onClick={onEditContract}
-        className={`mt-2 text-xs px-2 py-1 rounded border transition-all hover:opacity-80 ${
-          contractColors
-            ? `${contractColors.bg} ${contractColors.text} ${contractColors.border}`
-            : 'bg-slate-50 text-slate-400 border-dashed border-slate-300 hover:border-slate-400'
-        }`}
-      >
-        {contractType ? CONTRACT_TYPE_LABELS[contractType] : '+ 계약방식'}
-      </button>
+      {/* 계약 정보 태그들 */}
+      <div className="flex flex-wrap gap-1 mt-2">
+        <ContractInfoTags info={contractInfo} onEdit={onEditContract} />
+      </div>
 
       <div className="flex gap-4 mt-3 text-sm">
         <div>
@@ -727,7 +728,7 @@ interface ClientItemProps {
   isPoc: boolean;
   colorClass: { text: string; border: string; bg: string };
   showUserMetrics?: boolean;
-  contractType?: ContractType;
+  contractInfo?: ContractInfo;
   onEditContract: () => void;
 }
 
@@ -737,7 +738,7 @@ function ClientItem({
   isPoc,
   colorClass,
   showUserMetrics = false,
-  contractType,
+  contractInfo,
   onEditContract,
 }: ClientItemProps) {
   // 교육청 지표 계산
@@ -751,8 +752,6 @@ function ClientItem({
   const avgPricePerActive = item.activeUsers
     ? Math.round(item.charge / item.activeUsers)
     : null;
-
-  const contractColors = contractType ? CONTRACT_TYPE_COLORS[contractType] : null;
 
   return (
     <div
@@ -775,26 +774,19 @@ function ClientItem({
         )}
       </div>
 
-      {/* 지역 정보 + 계약 방식 */}
-      <div className="flex items-center gap-2 mt-0.5">
-        {item.region && (
-          <div className="text-xs text-slate-500">
-            {item.region}{' '}
-            {item.subRegion && item.subRegion !== item.region
-              ? item.subRegion
-              : ''}
-          </div>
-        )}
-        <button
-          onClick={onEditContract}
-          className={`text-xs px-1.5 py-0.5 rounded border transition-all hover:opacity-80 ${
-            contractColors
-              ? `${contractColors.bg} ${contractColors.text} ${contractColors.border}`
-              : 'bg-white text-slate-400 border-dashed border-slate-300 hover:border-slate-400'
-          }`}
-        >
-          {contractType ? CONTRACT_TYPE_LABELS[contractType] : '+'}
-        </button>
+      {/* 지역 정보 */}
+      {item.region && (
+        <div className="text-xs text-slate-500 mt-0.5">
+          {item.region}{' '}
+          {item.subRegion && item.subRegion !== item.region
+            ? item.subRegion
+            : ''}
+        </div>
+      )}
+
+      {/* 계약 정보 태그들 */}
+      <div className="flex flex-wrap gap-1 mt-1.5">
+        <ContractInfoTags info={contractInfo} onEdit={onEditContract} compact />
       </div>
 
       <div className="flex gap-3 mt-1.5 text-xs text-slate-400">
@@ -861,84 +853,288 @@ function ClientItem({
 }
 
 // ============================================================================
-// 서브 컴포넌트: ContractTypeModal (계약 방식 편집 모달)
+// 서브 컴포넌트: ContractInfoTags (계약 정보 태그 표시)
 // ============================================================================
 
-interface ContractTypeModalProps {
+interface ContractInfoTagsProps {
+  info?: ContractInfo;
+  onEdit: () => void;
+  compact?: boolean;
+}
+
+function ContractInfoTags({ info, onEdit, compact = false }: ContractInfoTagsProps) {
+  // 계약 정보가 없으면 추가 버튼만 표시
+  if (!info || (!info.billing && !info.channel && !info.payment)) {
+    return (
+      <button
+        onClick={onEdit}
+        className="text-xs px-2 py-0.5 rounded border border-dashed border-slate-300 text-slate-400 hover:border-slate-400 transition-all"
+      >
+        + 계약정보
+      </button>
+    );
+  }
+
+  return (
+    <>
+      {/* 과금 방식 (가장 중요!) */}
+      {info.billing && (
+        <button
+          onClick={onEdit}
+          className={`text-xs px-1.5 py-0.5 rounded border transition-all hover:opacity-80 ${
+            BILLING_TYPE_COLORS[info.billing].bg
+          } ${BILLING_TYPE_COLORS[info.billing].text} ${
+            BILLING_TYPE_COLORS[info.billing].border
+          }`}
+        >
+          {BILLING_TYPE_LABELS[info.billing]}
+        </button>
+      )}
+
+      {/* 계약 채널 */}
+      {info.channel && !compact && (
+        <button
+          onClick={onEdit}
+          className={`text-xs px-1.5 py-0.5 rounded border transition-all hover:opacity-80 ${
+            CONTRACT_CHANNEL_COLORS[info.channel].bg
+          } ${CONTRACT_CHANNEL_COLORS[info.channel].text} ${
+            CONTRACT_CHANNEL_COLORS[info.channel].border
+          }`}
+        >
+          {CONTRACT_CHANNEL_LABELS[info.channel]}
+        </button>
+      )}
+
+      {/* 정산 방식 */}
+      {info.payment && !compact && (
+        <button
+          onClick={onEdit}
+          className={`text-xs px-1.5 py-0.5 rounded border transition-all hover:opacity-80 ${
+            PAYMENT_METHOD_COLORS[info.payment].bg
+          } ${PAYMENT_METHOD_COLORS[info.payment].text} ${
+            PAYMENT_METHOD_COLORS[info.payment].border
+          }`}
+        >
+          {PAYMENT_METHOD_LABELS[info.payment]}
+        </button>
+      )}
+
+      {/* compact 모드에서 추가 정보가 있으면 ... 표시 */}
+      {compact && (info.channel || info.payment) && (
+        <button
+          onClick={onEdit}
+          className="text-xs px-1 py-0.5 text-slate-400 hover:text-slate-600"
+        >
+          ...
+        </button>
+      )}
+    </>
+  );
+}
+
+// ============================================================================
+// 서브 컴포넌트: ContractInfoModal (계약 정보 편집 모달)
+// ============================================================================
+
+interface ContractInfoModalProps {
   client: Client;
-  currentType?: ContractType;
-  onSave: (type: ContractType | undefined) => void;
+  currentInfo?: ContractInfo;
+  onSave: (info: ContractInfo | null) => void;
   onClose: () => void;
 }
 
-function ContractTypeModal({
+function ContractInfoModal({
   client,
-  currentType,
+  currentInfo,
   onSave,
   onClose,
-}: ContractTypeModalProps) {
-  const contractTypes: ContractType[] = [
-    'subscription',
-    'usage',
-    'license',
-    'poc',
-    'free',
+}: ContractInfoModalProps) {
+  const [info, setInfo] = useState<ContractInfo>(currentInfo || {});
+
+  const billingTypes: BillingType[] = ['usage', 'fixed', 'poc'];
+  const channels: ContractChannel[] = [
+    'naramarket_service',
+    'naramarket_goods',
+    'document',
+    'simple',
   ];
+  const payments: PaymentMethod[] = [
+    'prepaid_card',
+    'prepaid_cash',
+    'postpaid_cash',
+    'auto_card',
+    'narabill',
+  ];
+
+  const handleSave = () => {
+    // 하나라도 선택되어 있으면 저장
+    if (info.billing || info.channel || info.payment) {
+      onSave(info);
+    } else {
+      onSave(null);
+    }
+  };
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-xl"
+        className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-bold text-lg mb-1">계약 방식 설정</h3>
+        <h3 className="font-bold text-lg mb-1">계약 정보 설정</h3>
         <p className="text-sm text-slate-500 mb-4">{client.name}</p>
 
-        <div className="space-y-2">
-          {contractTypes.map((type) => {
-            const colors = CONTRACT_TYPE_COLORS[type];
-            const isSelected = currentType === type;
-
-            return (
-              <button
-                key={type}
-                onClick={() => onSave(type)}
-                className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
-                  isSelected
-                    ? `${colors.bg} ${colors.border} ${colors.text}`
-                    : 'border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                <div className="font-medium">{CONTRACT_TYPE_LABELS[type]}</div>
-                <div className="text-xs text-slate-500 mt-0.5">
-                  {type === 'subscription' && '월정액 구독 서비스'}
-                  {type === 'usage' && 'API 호출량 기반 과금'}
-                  {type === 'license' && '일시불 라이선스 구매'}
-                  {type === 'poc' && 'PoC/시범운영 중'}
-                  {type === 'free' && '무료 체험/데모 사용'}
-                </div>
-              </button>
-            );
-          })}
+        {/* 과금 방식 (가장 중요!) */}
+        <div className="mb-5">
+          <div className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+            💰 과금 방식
+            <span className="text-xs font-normal text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
+              중요
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {billingTypes.map((type) => {
+              const colors = BILLING_TYPE_COLORS[type];
+              const isSelected = info.billing === type;
+              return (
+                <button
+                  key={type}
+                  onClick={() =>
+                    setInfo((prev) => ({
+                      ...prev,
+                      billing: isSelected ? undefined : type,
+                    }))
+                  }
+                  className={`p-2 rounded-lg border-2 text-center transition-all ${
+                    isSelected
+                      ? `${colors.bg} ${colors.border} ${colors.text}`
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="font-medium text-sm">
+                    {BILLING_TYPE_LABELS[type]}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-0.5">
+                    {BILLING_TYPE_DESC[type]}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="flex gap-2 mt-4">
-          {currentType && (
+        {/* 계약 채널 */}
+        <div className="mb-5">
+          <div className="text-sm font-semibold text-slate-700 mb-2">
+            📝 계약 채널
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {channels.map((ch) => {
+              const colors = CONTRACT_CHANNEL_COLORS[ch];
+              const isSelected = info.channel === ch;
+              return (
+                <button
+                  key={ch}
+                  onClick={() =>
+                    setInfo((prev) => ({
+                      ...prev,
+                      channel: isSelected ? undefined : ch,
+                    }))
+                  }
+                  className={`p-2 rounded-lg border-2 text-left transition-all ${
+                    isSelected
+                      ? `${colors.bg} ${colors.border} ${colors.text}`
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="font-medium text-sm">
+                    {CONTRACT_CHANNEL_LABELS[ch]}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-0.5 line-clamp-2">
+                    {CONTRACT_CHANNEL_DESC[ch]}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 정산 방식 */}
+        <div className="mb-5">
+          <div className="text-sm font-semibold text-slate-700 mb-2">
+            💳 정산 방식
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {payments.map((pm) => {
+              const colors = PAYMENT_METHOD_COLORS[pm];
+              const isSelected = info.payment === pm;
+              return (
+                <button
+                  key={pm}
+                  onClick={() =>
+                    setInfo((prev) => ({
+                      ...prev,
+                      payment: isSelected ? undefined : pm,
+                    }))
+                  }
+                  className={`p-2 rounded-lg border-2 text-left transition-all ${
+                    isSelected
+                      ? `${colors.bg} ${colors.border} ${colors.text}`
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="font-medium text-sm">
+                    {PAYMENT_METHOD_LABELS[pm]}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-0.5 line-clamp-2">
+                    {PAYMENT_METHOD_DESC[pm]}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 메모 */}
+        <div className="mb-5">
+          <div className="text-sm font-semibold text-slate-700 mb-2">
+            📋 메모 (선택)
+          </div>
+          <input
+            type="text"
+            value={info.note || ''}
+            onChange={(e) =>
+              setInfo((prev) => ({ ...prev, note: e.target.value || undefined }))
+            }
+            placeholder="계약 관련 메모..."
+            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400"
+          />
+        </div>
+
+        {/* 버튼들 */}
+        <div className="flex gap-2">
+          {currentInfo && (
             <button
-              onClick={() => onSave(undefined)}
-              className="flex-1 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              onClick={() => onSave(null)}
+              className="flex-1 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             >
               삭제
             </button>
           )}
           <button
             onClick={onClose}
-            className="flex-1 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="flex-1 py-2.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
           >
             취소
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 py-2.5 text-sm bg-slate-800 text-white hover:bg-slate-700 rounded-lg transition-colors"
+          >
+            저장
           </button>
         </div>
       </div>

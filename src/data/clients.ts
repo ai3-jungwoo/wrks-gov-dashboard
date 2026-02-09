@@ -1,34 +1,138 @@
-/**
- * 계약 방식 타입
- * - 'subscription': 구독형 (월정액)
- * - 'usage': 사용량 기반
- * - 'license': 라이선스 (일시불)
- * - 'poc': PoC/시범운영
- * - 'free': 무료/데모
- * - undefined: 미지정
- */
-export type ContractType = 'subscription' | 'usage' | 'license' | 'poc' | 'free';
+// ============================================================================
+// 계약 정보 타입 정의
+// ============================================================================
 
 /**
- * 계약 방식 레이블 (UI 표시용)
+ * 계약 채널 (어떻게 계약했는가)
  */
-export const CONTRACT_TYPE_LABELS: Record<ContractType, string> = {
-  subscription: '구독형',
-  usage: '사용량 기반',
-  license: '라이선스',
-  poc: 'PoC',
-  free: '무료/데모',
+export type ContractChannel =
+  | 'naramarket_service'  // 나라장터 용역계약
+  | 'naramarket_goods'    // 나라장터 물품계약
+  | 'document'            // 서류계약 (표준이용계약서)
+  | 'simple';             // 간편가입 (이용약관)
+
+/**
+ * 정산 방식 (어떻게 돈을 받는가)
+ */
+export type PaymentMethod =
+  | 'prepaid_card'        // 카드 선불 충전
+  | 'prepaid_cash'        // 현금 선불 충전
+  | 'postpaid_cash'       // 현금 후불 청구
+  | 'auto_card'           // 카드 자동결제
+  | 'narabill';           // 나라빌 청구
+
+/**
+ * 과금 방식 (얼마를 받는가)
+ */
+export type BillingType =
+  | 'usage'               // 종량제 (사용량 기반) - 가장 중요!
+  | 'fixed'               // 월정액
+  | 'poc';                // PoC (사실상 무료체험)
+
+/**
+ * 계약 정보 전체
+ */
+export interface ContractInfo {
+  channel?: ContractChannel;    // 계약 채널
+  payment?: PaymentMethod;      // 정산 방식
+  billing?: BillingType;        // 과금 방식
+  note?: string;                // 메모
+}
+
+// ============================================================================
+// 레이블 정의
+// ============================================================================
+
+export const CONTRACT_CHANNEL_LABELS: Record<ContractChannel, string> = {
+  naramarket_service: '나라장터 용역',
+  naramarket_goods: '나라장터 물품',
+  document: '서류계약',
+  simple: '간편가입',
 };
 
-/**
- * 계약 방식 색상 (UI 표시용)
- */
-export const CONTRACT_TYPE_COLORS: Record<ContractType, { bg: string; text: string; border: string }> = {
-  subscription: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-300' },
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  prepaid_card: '카드 선불',
+  prepaid_cash: '현금 선불',
+  postpaid_cash: '현금 후불',
+  auto_card: '카드 자동결제',
+  narabill: '나라빌',
+};
+
+export const BILLING_TYPE_LABELS: Record<BillingType, string> = {
+  usage: '종량제',
+  fixed: '월정액',
+  poc: 'PoC',
+};
+
+// ============================================================================
+// 색상 정의
+// ============================================================================
+
+export const CONTRACT_CHANNEL_COLORS: Record<ContractChannel, { bg: string; text: string; border: string }> = {
+  naramarket_service: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-300' },
+  naramarket_goods: { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-300' },
+  document: { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-300' },
+  simple: { bg: 'bg-cyan-100', text: 'text-cyan-700', border: 'border-cyan-300' },
+};
+
+export const PAYMENT_METHOD_COLORS: Record<PaymentMethod, { bg: string; text: string; border: string }> = {
+  prepaid_card: { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-300' },
+  prepaid_cash: { bg: 'bg-teal-100', text: 'text-teal-700', border: 'border-teal-300' },
+  postpaid_cash: { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-300' },
+  auto_card: { bg: 'bg-pink-100', text: 'text-pink-700', border: 'border-pink-300' },
+  narabill: { bg: 'bg-rose-100', text: 'text-rose-700', border: 'border-rose-300' },
+};
+
+export const BILLING_TYPE_COLORS: Record<BillingType, { bg: string; text: string; border: string }> = {
   usage: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-300' },
-  license: { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-300' },
+  fixed: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-300' },
   poc: { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-300' },
-  free: { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-300' },
+};
+
+// ============================================================================
+// 설명 텍스트
+// ============================================================================
+
+export const CONTRACT_CHANNEL_DESC: Record<ContractChannel, string> = {
+  naramarket_service: '국가계약법에 따른 공식 전자 조달 시스템 (용역)',
+  naramarket_goods: 'GS인증 기반 중소기업우선구매제도 (물품)',
+  document: '표준이용계약서를 통한 직접 수의계약',
+  simple: '이용약관 동의로 신속하게 서비스 개시',
+};
+
+export const PAYMENT_METHOD_DESC: Record<PaymentMethod, string> = {
+  prepaid_card: '법인카드로 적립금 충전 후 차감',
+  prepaid_cash: '세금계산서 발행 후 현금 입금으로 충전',
+  postpaid_cash: '매월 사용량 기반 세금계산서 발행',
+  auto_card: '등록된 법인카드로 매월 자동 결제',
+  narabill: '나라빌 시스템으로 전자 청구서 발송',
+};
+
+export const BILLING_TYPE_DESC: Record<BillingType, string> = {
+  usage: '실제 사용량(API 호출)에 따라 과금',
+  fixed: '월 고정 요금제',
+  poc: '시범운영/무료체험 (10만원 미만)',
+};
+
+// ============================================================================
+// 대표 사례 (sample.md 기반)
+// ============================================================================
+
+export const CONTRACT_EXAMPLES: Record<string, string[]> = {
+  // 나라장터 용역 + 후불
+  'naramarket_service+postpaid_cash+usage': ['창원시청', '성동구청', '부산교육청'],
+  // 나라장터 물품 + 선불
+  'naramarket_goods+prepaid_cash+usage': ['서울시교육청'],
+  // 서류계약 + 카드선불
+  'document+prepaid_card+usage': ['울산교육청'],
+  // 서류계약 + 현금선불
+  'document+prepaid_cash+usage': ['국민체육진흥공단'],
+  // 서류계약 + 현금후불
+  'document+postpaid_cash+usage': ['강남구청', '성북구청', '강서구청', '장성군청', '하동군청'],
+  // 간편가입 + 카드자동결제
+  'simple+auto_card+usage': ['서귀포시청', '제주시청'],
+  // 간편가입 + 나라빌
+  'simple+narabill+usage': ['통일부'],
 };
 
 /**
@@ -42,8 +146,6 @@ export interface Client {
   usage: number;
   activeUsers?: number;   // 활성사용자수
   totalUsers?: number;    // 전체가입자수
-  contractType?: ContractType;  // 계약 방식
-  contractNote?: string;  // 계약 관련 메모 (선택)
 }
 
 // 교육청 (시/도 단위)
