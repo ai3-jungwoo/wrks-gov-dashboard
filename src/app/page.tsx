@@ -577,30 +577,67 @@ export default function Home() {
           {/* ============================================================ */}
           {/* Panel */}
           {/* ============================================================ */}
-          <div className="lg:w-[360px] bg-white border border-slate-200 rounded-2xl p-6">
-            {/* Selected Region */}
+          <div className="lg:w-[400px] bg-white border border-slate-200 rounded-2xl p-6">
+            {/* Selected Region - 상세 정보 */}
             {selectedRegion && selectedRegion.data && (
-              <div className={`mb-4 p-4 rounded-xl ${config.colorClass.bg}`}>
-                <div
-                  className={`font-bold ${config.colorClass.text.replace(
-                    '600',
-                    '700'
-                  )}`}
-                >
-                  {selectedRegion.name}
+              <div className={`mb-5 p-4 rounded-xl border-2 ${config.colorClass.bg} ${config.colorClass.border.replace('border-l-', 'border-')}`}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`text-lg font-bold ${config.colorClass.text}`}>
+                    📍 {selectedRegion.name}
+                  </div>
+                  <button
+                    onClick={() => setSelectedRegion(null)}
+                    className="text-slate-400 hover:text-slate-600 text-sm"
+                  >
+                    ✕
+                  </button>
                 </div>
-                <div className="text-sm text-slate-600 mt-1">
-                  사용금액: {formatMoney(selectedRegion.data.charge)} ·{' '}
-                  {selectedRegion.data.items.length}개 기관
+
+                {/* 통계 그리드 */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-xs text-slate-500">사용금액</div>
+                    <div className={`text-base font-bold ${config.colorClass.text}`}>
+                      {formatMoney(selectedRegion.data.charge)}
+                    </div>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-xs text-slate-500">사용량</div>
+                    <div className={`text-base font-bold ${config.colorClass.text}`}>
+                      {selectedRegion.data.usage.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 소속 기관 목록 */}
+                <div className="bg-white/60 rounded-lg p-2">
+                  <div className="text-xs text-slate-500 mb-1">
+                    소속 기관 ({selectedRegion.data.items.length}개)
+                  </div>
+                  <div className="space-y-1">
+                    {selectedRegion.data.items
+                      .sort((a, b) => b.charge - a.charge)
+                      .map((org, i) => (
+                        <div key={i} className="flex items-center justify-between text-xs">
+                          <span className="text-slate-700 truncate flex-1">{org.name}</span>
+                          <span className={`font-medium ${config.colorClass.text} ml-2`}>
+                            {formatMoney(org.charge)}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </div>
             )}
 
-            <h3 className="text-sm font-semibold text-slate-500 mb-4">
-              📊 {config.label} 목록 (사용금액순)
+            <h3 className="text-sm font-semibold text-slate-500 mb-3 flex items-center justify-between">
+              <span>📊 {config.label} 목록</span>
+              <span className="text-xs font-normal text-slate-400">
+                사용금액순 · {filteredData.length}개
+              </span>
             </h3>
 
-            <div className="space-y-2 max-h-[500px] overflow-y-auto">
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
               {sortedData.map((item, idx) => (
                 <ClientItem
                   key={idx}
@@ -668,51 +705,51 @@ function ClientCard({
 }: ClientCardProps) {
   return (
     <div
-      className={`p-4 rounded-xl border-2 transition-all ${
+      className={`p-4 rounded-xl border-2 transition-all hover:shadow-md ${
         isPoc
-          ? 'border-dashed border-slate-200 bg-slate-50'
-          : `border-slate-100 ${colorClass.bg}`
+          ? 'border-dashed border-slate-200 bg-slate-50/50'
+          : `border-slate-100 ${colorClass.bg} hover:border-slate-200`
       }`}
     >
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="font-semibold text-slate-800">{item.name}</div>
+      {/* 헤더 */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="font-bold text-slate-800 truncate">{item.name}</div>
           {item.region && (
-            <div className="text-xs text-slate-500 mt-0.5">
-              {item.region}{' '}
+            <div className="text-xs text-slate-400 mt-0.5">
+              📍 {item.region}
               {item.subRegion && item.subRegion !== item.region
-                ? `· ${item.subRegion}`
+                ? ` · ${item.subRegion}`
                 : ''}
             </div>
           )}
         </div>
-        <div className="flex gap-1">
-          {isPoc && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
-              PoC
-            </span>
-          )}
+        {isPoc && (
+          <span className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 font-medium">
+            PoC
+          </span>
+        )}
+      </div>
+
+      {/* 사용금액/사용량 - 그리드 */}
+      <div className="grid grid-cols-2 gap-2 mt-3">
+        <div className="bg-white/60 rounded-lg px-3 py-2">
+          <div className="text-xs text-slate-400">사용금액</div>
+          <div className={`text-base font-bold ${colorClass.text}`}>
+            {formatMoney(item.charge)}
+          </div>
+        </div>
+        <div className="bg-white/60 rounded-lg px-3 py-2">
+          <div className="text-xs text-slate-400">사용량</div>
+          <div className={`text-base font-bold ${colorClass.text}`}>
+            {item.usage.toLocaleString()}
+          </div>
         </div>
       </div>
 
       {/* 계약 정보 태그들 */}
-      <div className="flex flex-wrap gap-1 mt-2">
+      <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100">
         <ContractInfoTags info={contractInfo} onEdit={onEditContract} />
-      </div>
-
-      <div className="flex gap-4 mt-3 text-sm">
-        <div>
-          <span className="text-slate-400">사용금액</span>
-          <span className={`ml-2 font-bold ${colorClass.text}`}>
-            {formatMoney(item.charge)}
-          </span>
-        </div>
-        <div>
-          <span className="text-slate-400">사용량</span>
-          <span className={`ml-2 font-bold ${colorClass.text}`}>
-            {item.usage.toLocaleString()}
-          </span>
-        </div>
       </div>
     </div>
   );
@@ -755,97 +792,106 @@ function ClientItem({
 
   return (
     <div
-      className={`p-3 rounded-lg border-l-4 transition-all ${
+      className={`p-3 rounded-xl border-2 transition-all ${
         isActive
-          ? `${colorClass.bg} ${colorClass.border}`
+          ? `${colorClass.bg} ${colorClass.border.replace('border-l-', 'border-')}`
           : isPoc
-          ? 'bg-slate-50 border-l-slate-300 border-dashed'
-          : 'bg-slate-50 border-l-slate-200 hover:bg-slate-100'
+          ? 'bg-slate-50/50 border-dashed border-slate-200'
+          : 'bg-white border-slate-100 hover:border-slate-200 hover:shadow-sm'
       }`}
     >
-      <div className="flex items-center gap-2">
-        <div className="font-semibold text-sm text-slate-800 flex-1">
-          {item.name}
+      {/* 헤더: 이름 + PoC 뱃지 */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-sm text-slate-800 truncate">
+            {item.name}
+          </div>
+          {item.region && (
+            <div className="text-xs text-slate-400 mt-0.5">
+              📍 {item.region}
+              {item.subRegion && item.subRegion !== item.region
+                ? ` · ${item.subRegion}`
+                : ''}
+            </div>
+          )}
         </div>
         {isPoc && (
-          <span className="text-xs px-1.5 py-0.5 rounded bg-slate-200 text-slate-500">
+          <span className="flex-shrink-0 text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 font-medium">
             PoC
           </span>
         )}
       </div>
 
-      {/* 지역 정보 */}
-      {item.region && (
-        <div className="text-xs text-slate-500 mt-0.5">
-          {item.region}{' '}
-          {item.subRegion && item.subRegion !== item.region
-            ? item.subRegion
-            : ''}
+      {/* 사용금액/사용량 - 그리드 레이아웃 */}
+      <div className="grid grid-cols-2 gap-2 mt-2">
+        <div className="bg-slate-50 rounded-lg px-2 py-1.5">
+          <div className="text-xs text-slate-400">사용금액</div>
+          <div className={`text-sm font-bold ${colorClass.text}`}>
+            {formatMoney(item.charge)}
+          </div>
         </div>
-      )}
-
-      {/* 계약 정보 태그들 */}
-      <div className="flex flex-wrap gap-1 mt-1.5">
-        <ContractInfoTags info={contractInfo} onEdit={onEditContract} compact />
+        <div className="bg-slate-50 rounded-lg px-2 py-1.5">
+          <div className="text-xs text-slate-400">사용량</div>
+          <div className={`text-sm font-bold ${colorClass.text}`}>
+            {item.usage.toLocaleString()}
+          </div>
+        </div>
       </div>
 
-      <div className="flex gap-3 mt-1.5 text-xs text-slate-400">
-        <span>
-          사용금액:{' '}
-          <strong className={colorClass.text}>{formatMoney(item.charge)}</strong>
-        </span>
-        <span>
-          사용량:{' '}
-          <strong className={colorClass.text}>
-            {item.usage.toLocaleString()}
-          </strong>
-        </span>
+      {/* 계약 정보 태그들 */}
+      <div className="flex flex-wrap gap-1 mt-2">
+        <ContractInfoTags info={contractInfo} onEdit={onEditContract} />
       </div>
 
       {/* User Metrics for Education */}
       {showUserMetrics && (item.activeUsers || item.totalUsers) && (
-        <div className="mt-2 pt-2 border-t border-slate-200 space-y-1">
-          <div className="flex gap-3 text-xs text-slate-400">
-            {item.activeUsers && (
-              <span>
-                활성:{' '}
-                <strong className="text-indigo-600">
-                  {item.activeUsers.toLocaleString()}명
-                </strong>
-              </span>
+        <div className="mt-2 pt-2 border-t border-slate-100">
+          <div className="grid grid-cols-3 gap-1 text-center">
+            {item.activeUsers !== undefined && (
+              <div className="bg-indigo-50 rounded px-1 py-1">
+                <div className="text-xs text-indigo-400">활성</div>
+                <div className="text-xs font-bold text-indigo-600">
+                  {item.activeUsers.toLocaleString()}
+                </div>
+              </div>
             )}
-            {item.totalUsers && (
-              <span>
-                전체:{' '}
-                <strong className="text-indigo-600">
-                  {item.totalUsers.toLocaleString()}명
-                </strong>
-              </span>
+            {item.totalUsers !== undefined && (
+              <div className="bg-slate-50 rounded px-1 py-1">
+                <div className="text-xs text-slate-400">전체</div>
+                <div className="text-xs font-bold text-slate-600">
+                  {item.totalUsers.toLocaleString()}
+                </div>
+              </div>
             )}
             {activationRate && (
-              <span>
-                활성율: <strong className="text-green-600">{activationRate}%</strong>
-              </span>
+              <div className="bg-green-50 rounded px-1 py-1">
+                <div className="text-xs text-green-400">활성율</div>
+                <div className="text-xs font-bold text-green-600">
+                  {activationRate}%
+                </div>
+              </div>
             )}
           </div>
-          <div className="flex gap-3 text-xs text-slate-400">
-            {avgPricePerTotal && (
-              <span>
-                월평균(전체):{' '}
-                <strong className="text-purple-600">
-                  {formatMoney(avgPricePerTotal)}/인
-                </strong>
-              </span>
-            )}
-            {avgPricePerActive && (
-              <span>
-                월평균(활성):{' '}
-                <strong className="text-amber-600">
-                  {formatMoney(avgPricePerActive)}/인
-                </strong>
-              </span>
-            )}
-          </div>
+          {(avgPricePerTotal || avgPricePerActive) && (
+            <div className="grid grid-cols-2 gap-1 mt-1 text-center">
+              {avgPricePerTotal && (
+                <div className="bg-purple-50 rounded px-1 py-1">
+                  <div className="text-xs text-purple-400">월평균/전체</div>
+                  <div className="text-xs font-bold text-purple-600">
+                    {formatMoney(avgPricePerTotal)}
+                  </div>
+                </div>
+              )}
+              {avgPricePerActive && (
+                <div className="bg-amber-50 rounded px-1 py-1">
+                  <div className="text-xs text-amber-400">월평균/활성</div>
+                  <div className="text-xs font-bold text-amber-600">
+                    {formatMoney(avgPricePerActive)}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -859,16 +905,15 @@ function ClientItem({
 interface ContractInfoTagsProps {
   info?: ContractInfo;
   onEdit: () => void;
-  compact?: boolean;
 }
 
-function ContractInfoTags({ info, onEdit, compact = false }: ContractInfoTagsProps) {
+function ContractInfoTags({ info, onEdit }: ContractInfoTagsProps) {
   // 계약 정보가 없으면 추가 버튼만 표시
   if (!info || (!info.billing && !info.channel && !info.payment)) {
     return (
       <button
         onClick={onEdit}
-        className="text-xs px-2 py-0.5 rounded border border-dashed border-slate-300 text-slate-400 hover:border-slate-400 transition-all"
+        className="text-xs px-2 py-0.5 rounded border border-dashed border-slate-300 text-slate-400 hover:border-slate-400 hover:bg-slate-50 transition-all"
       >
         + 계약정보
       </button>
@@ -892,7 +937,7 @@ function ContractInfoTags({ info, onEdit, compact = false }: ContractInfoTagsPro
       )}
 
       {/* 계약 채널 */}
-      {info.channel && !compact && (
+      {info.channel && (
         <button
           onClick={onEdit}
           className={`text-xs px-1.5 py-0.5 rounded border transition-all hover:opacity-80 ${
@@ -906,7 +951,7 @@ function ContractInfoTags({ info, onEdit, compact = false }: ContractInfoTagsPro
       )}
 
       {/* 정산 방식 */}
-      {info.payment && !compact && (
+      {info.payment && (
         <button
           onClick={onEdit}
           className={`text-xs px-1.5 py-0.5 rounded border transition-all hover:opacity-80 ${
@@ -919,13 +964,14 @@ function ContractInfoTags({ info, onEdit, compact = false }: ContractInfoTagsPro
         </button>
       )}
 
-      {/* compact 모드에서 추가 정보가 있으면 ... 표시 */}
-      {compact && (info.channel || info.payment) && (
+      {/* 메모가 있으면 표시 */}
+      {info.note && (
         <button
           onClick={onEdit}
-          className="text-xs px-1 py-0.5 text-slate-400 hover:text-slate-600"
+          className="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 hover:opacity-80 transition-all"
+          title={info.note}
         >
-          ...
+          📝
         </button>
       )}
     </>
