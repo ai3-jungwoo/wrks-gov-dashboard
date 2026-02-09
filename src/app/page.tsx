@@ -82,7 +82,14 @@ interface TabConfig {
 const POC_THRESHOLD = 100000;
 
 /** 로컬 스토리지 키 */
-const STORAGE_KEY = 'gov-dashboard-contract-types';
+const STORAGE_KEY_CONTRACT = 'gov-dashboard-contract-types';
+const STORAGE_KEY_USERS = 'gov-dashboard-user-metrics';
+
+/** 사용자 지표 타입 */
+interface UserMetrics {
+  activeUsers?: number;
+  totalUsers?: number;
+}
 
 /** 탭 설정 */
 const TAB_CONFIG: Record<TabType, TabConfig> = {
@@ -175,19 +182,27 @@ export default function Home() {
   const [contractInfos, setContractInfos] = useState<Record<string, ContractInfo>>({});
   const [editingClient, setEditingClient] = useState<Client | null>(null);
 
+  // 사용자 지표 수정용 상태
+  const [userMetrics, setUserMetrics] = useState<Record<string, UserMetrics>>({});
+  const [editingUserMetrics, setEditingUserMetrics] = useState<Client | null>(null);
+
   // ============================================================================
   // 로컬 스토리지 동기화
   // ============================================================================
 
-  // 초기 로드: 로컬 스토리지에서 계약 정보 불러오기
+  // 초기 로드: 로컬 스토리지에서 계약 정보 및 사용자 지표 불러오기
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        setContractInfos(JSON.parse(saved));
+      const savedContract = localStorage.getItem(STORAGE_KEY_CONTRACT);
+      if (savedContract) {
+        setContractInfos(JSON.parse(savedContract));
+      }
+      const savedUsers = localStorage.getItem(STORAGE_KEY_USERS);
+      if (savedUsers) {
+        setUserMetrics(JSON.parse(savedUsers));
       }
     } catch (e) {
-      console.warn('로컬 스토리지에서 계약 정보를 불러오는데 실패했습니다:', e);
+      console.warn('로컬 스토리지에서 데이터를 불러오는데 실패했습니다:', e);
     }
   }, []);
 
@@ -195,12 +210,23 @@ export default function Home() {
   useEffect(() => {
     if (Object.keys(contractInfos).length > 0) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(contractInfos));
+        localStorage.setItem(STORAGE_KEY_CONTRACT, JSON.stringify(contractInfos));
       } catch (e) {
         console.warn('로컬 스토리지에 저장하는데 실패했습니다:', e);
       }
     }
   }, [contractInfos]);
+
+  // 사용자 지표 변경 시 로컬 스토리지에 저장
+  useEffect(() => {
+    if (Object.keys(userMetrics).length > 0) {
+      try {
+        localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(userMetrics));
+      } catch (e) {
+        console.warn('로컬 스토리지에 저장하는데 실패했습니다:', e);
+      }
+    }
+  }, [userMetrics]);
 
   // ============================================================================
   // 현재 탭 설정
@@ -236,21 +262,36 @@ export default function Home() {
   }, [config.data]);
 
   /**
-   * 통계 계산
+   * 사용자 지표 가져오기 (로컬 스토리지 우선, 없으면 원본 데이터)
+   */
+  const getUserMetrics = useCallback(
+    (clientName: string, item: Client): UserMetrics => {
+      const stored = userMetrics[clientName];
+      return {
+        activeUsers: stored?.activeUsers ?? item.activeUsers,
+        totalUsers: stored?.totalUsers ?? item.totalUsers,
+      };
+    },
+    [userMetrics]
+  );
+
+  /**
+   * 통계 계산 (로컬 스토리지 지표 포함)
    */
   const stats = useMemo(() => {
     const totalCharge = filteredData.reduce((sum, item) => sum + item.charge, 0);
     const totalUsage = filteredData.reduce((sum, item) => sum + item.usage, 0);
 
-    // 교육청 전용 지표
-    const totalActiveUsers = filteredData.reduce(
-      (sum, item) => sum + (item.activeUsers || 0),
-      0
-    );
-    const totalTotalUsers = filteredData.reduce(
-      (sum, item) => sum + (item.totalUsers || 0),
-      0
-    );
+    // 사용자 지표 합계 (로컬 스토리지 값 우선)
+    const totalActiveUsers = filteredData.reduce((sum, item) => {
+      const metrics = getUserMetrics(item.name, item);
+      return sum + (metrics.activeUsers || 0);
+    }, 0);
+    const totalTotalUsers = filteredData.reduce((sum, item) => {
+      const metrics = getUserMetrics(item.name, item);
+      return sum + (metrics.totalUsers || 0);
+    }, 0);
+
     const overallActivationRate =
       totalTotalUsers > 0
         ? ((totalActiveUsers / totalTotalUsers) * 100).toFixed(1)
@@ -269,7 +310,7 @@ export default function Home() {
       avgPricePerTotalUser,
       avgPricePerActiveUser,
     };
-  }, [filteredData]);
+  }, [filteredData, getUserMetrics]);
 
   // ============================================================================
   // 이벤트 핸들러
@@ -327,6 +368,24 @@ export default function Home() {
       return contractInfos[clientName];
     },
     [contractInfos]
+  );
+
+  /**
+   * 사용자 지표 변경 핸들러
+   */
+  const handleUserMetricsChange = useCallback(
+    (clientName: string, metrics: UserMetrics | null) => {
+      setUserMetrics((prev) => {
+        if (metrics === null) {
+          const next = { ...prev };
+          delete next[clientName];
+          return next;
+        }
+        return { ...prev, [clientName]: metrics };
+      });
+      setEditingUserMetrics(null);
+    },
+    []
   );
 
   // ============================================================================
@@ -568,6 +627,8 @@ export default function Home() {
                     colorClass={config.colorClass}
                     contractInfo={getContractInfo(item.name)}
                     onEditContract={() => setEditingClient(item)}
+                    userMetrics={getUserMetrics(item.name, item)}
+                    onEditUserMetrics={() => setEditingUserMetrics(item)}
                   />
                 ))}
               </div>
@@ -649,9 +710,10 @@ export default function Home() {
                   }
                   isPoc={item.charge < POC_THRESHOLD}
                   colorClass={config.colorClass}
-                  showUserMetrics={activeTab === 'education'}
                   contractInfo={getContractInfo(item.name)}
                   onEditContract={() => setEditingClient(item)}
+                  userMetrics={getUserMetrics(item.name, item)}
+                  onEditUserMetrics={() => setEditingUserMetrics(item)}
                 />
               ))}
             </div>
@@ -680,6 +742,18 @@ export default function Home() {
           onClose={() => setEditingClient(null)}
         />
       )}
+
+      {/* ================================================================== */}
+      {/* 사용자 지표 편집 모달 */}
+      {/* ================================================================== */}
+      {editingUserMetrics && (
+        <UserMetricsModal
+          client={editingUserMetrics}
+          currentMetrics={getUserMetrics(editingUserMetrics.name, editingUserMetrics)}
+          onSave={(metrics) => handleUserMetricsChange(editingUserMetrics.name, metrics)}
+          onClose={() => setEditingUserMetrics(null)}
+        />
+      )}
     </div>
   );
 }
@@ -694,6 +768,8 @@ interface ClientCardProps {
   colorClass: { text: string; bg: string };
   contractInfo?: ContractInfo;
   onEditContract: () => void;
+  userMetrics: UserMetrics;
+  onEditUserMetrics: () => void;
 }
 
 function ClientCard({
@@ -702,7 +778,22 @@ function ClientCard({
   colorClass,
   contractInfo,
   onEditContract,
+  userMetrics,
+  onEditUserMetrics,
 }: ClientCardProps) {
+  const { activeUsers, totalUsers } = userMetrics;
+  const hasUserData = activeUsers !== undefined || totalUsers !== undefined;
+  const activationRate =
+    activeUsers && totalUsers
+      ? ((activeUsers / totalUsers) * 100).toFixed(1)
+      : null;
+  const avgPricePerTotal = totalUsers
+    ? Math.round(item.charge / totalUsers)
+    : null;
+  const avgPricePerActive = activeUsers
+    ? Math.round(item.charge / activeUsers)
+    : null;
+
   return (
     <div
       className={`p-4 rounded-xl border-2 transition-all hover:shadow-md ${
@@ -747,6 +838,66 @@ function ClientCard({
         </div>
       </div>
 
+      {/* 사용자 지표 */}
+      <div className="mt-3 pt-3 border-t border-slate-100">
+        {hasUserData ? (
+          <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-1">
+              <button
+                onClick={onEditUserMetrics}
+                className="bg-indigo-50 hover:bg-indigo-100 rounded px-2 py-1.5 text-center transition-colors"
+              >
+                <div className="text-xs text-indigo-400">활성</div>
+                <div className="text-sm font-bold text-indigo-600">
+                  {activeUsers?.toLocaleString() ?? '-'}
+                </div>
+              </button>
+              <button
+                onClick={onEditUserMetrics}
+                className="bg-slate-50 hover:bg-slate-100 rounded px-2 py-1.5 text-center transition-colors"
+              >
+                <div className="text-xs text-slate-400">전체</div>
+                <div className="text-sm font-bold text-slate-600">
+                  {totalUsers?.toLocaleString() ?? '-'}
+                </div>
+              </button>
+              <button
+                onClick={onEditUserMetrics}
+                className="bg-green-50 hover:bg-green-100 rounded px-2 py-1.5 text-center transition-colors"
+              >
+                <div className="text-xs text-green-400">활성율</div>
+                <div className="text-sm font-bold text-green-600">
+                  {activationRate ? `${activationRate}%` : '-'}
+                </div>
+              </button>
+            </div>
+            {(avgPricePerTotal || avgPricePerActive) && (
+              <div className="grid grid-cols-2 gap-1">
+                <div className="bg-purple-50 rounded px-2 py-1 text-center">
+                  <div className="text-xs text-purple-400">월평균/전체</div>
+                  <div className="text-xs font-bold text-purple-600">
+                    {avgPricePerTotal ? formatMoney(avgPricePerTotal) : '-'}
+                  </div>
+                </div>
+                <div className="bg-amber-50 rounded px-2 py-1 text-center">
+                  <div className="text-xs text-amber-400">월평균/활성</div>
+                  <div className="text-xs font-bold text-amber-600">
+                    {avgPricePerActive ? formatMoney(avgPricePerActive) : '-'}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={onEditUserMetrics}
+            className="w-full py-2 text-xs text-orange-500 bg-orange-50 hover:bg-orange-100 rounded-lg border border-dashed border-orange-200 transition-colors"
+          >
+            👥 사용자 수 입력필요
+          </button>
+        )}
+      </div>
+
       {/* 계약 정보 태그들 */}
       <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100">
         <ContractInfoTags info={contractInfo} onEdit={onEditContract} />
@@ -764,9 +915,10 @@ interface ClientItemProps {
   isActive: boolean;
   isPoc: boolean;
   colorClass: { text: string; border: string; bg: string };
-  showUserMetrics?: boolean;
   contractInfo?: ContractInfo;
   onEditContract: () => void;
+  userMetrics: UserMetrics;
+  onEditUserMetrics: () => void;
 }
 
 function ClientItem({
@@ -774,20 +926,22 @@ function ClientItem({
   isActive,
   isPoc,
   colorClass,
-  showUserMetrics = false,
   contractInfo,
   onEditContract,
+  userMetrics,
+  onEditUserMetrics,
 }: ClientItemProps) {
-  // 교육청 지표 계산
+  const { activeUsers, totalUsers } = userMetrics;
+  const hasUserData = activeUsers !== undefined || totalUsers !== undefined;
   const activationRate =
-    item.activeUsers && item.totalUsers
-      ? ((item.activeUsers / item.totalUsers) * 100).toFixed(1)
+    activeUsers && totalUsers
+      ? ((activeUsers / totalUsers) * 100).toFixed(1)
       : null;
-  const avgPricePerTotal = item.totalUsers
-    ? Math.round(item.charge / item.totalUsers)
+  const avgPricePerTotal = totalUsers
+    ? Math.round(item.charge / totalUsers)
     : null;
-  const avgPricePerActive = item.activeUsers
-    ? Math.round(item.charge / item.activeUsers)
+  const avgPricePerActive = activeUsers
+    ? Math.round(item.charge / activeUsers)
     : null;
 
   return (
@@ -838,62 +992,70 @@ function ClientItem({
         </div>
       </div>
 
-      {/* 계약 정보 태그들 */}
-      <div className="flex flex-wrap gap-1 mt-2">
-        <ContractInfoTags info={contractInfo} onEdit={onEditContract} />
-      </div>
-
-      {/* User Metrics for Education */}
-      {showUserMetrics && (item.activeUsers || item.totalUsers) && (
-        <div className="mt-2 pt-2 border-t border-slate-100">
-          <div className="grid grid-cols-3 gap-1 text-center">
-            {item.activeUsers !== undefined && (
-              <div className="bg-indigo-50 rounded px-1 py-1">
+      {/* 사용자 지표 */}
+      <div className="mt-2 pt-2 border-t border-slate-100">
+        {hasUserData ? (
+          <div className="space-y-1">
+            <div className="grid grid-cols-3 gap-1 text-center">
+              <button
+                onClick={onEditUserMetrics}
+                className="bg-indigo-50 hover:bg-indigo-100 rounded px-1 py-1 transition-colors"
+              >
                 <div className="text-xs text-indigo-400">활성</div>
                 <div className="text-xs font-bold text-indigo-600">
-                  {item.activeUsers.toLocaleString()}
+                  {activeUsers?.toLocaleString() ?? '-'}
                 </div>
-              </div>
-            )}
-            {item.totalUsers !== undefined && (
-              <div className="bg-slate-50 rounded px-1 py-1">
+              </button>
+              <button
+                onClick={onEditUserMetrics}
+                className="bg-slate-50 hover:bg-slate-100 rounded px-1 py-1 transition-colors"
+              >
                 <div className="text-xs text-slate-400">전체</div>
                 <div className="text-xs font-bold text-slate-600">
-                  {item.totalUsers.toLocaleString()}
+                  {totalUsers?.toLocaleString() ?? '-'}
                 </div>
-              </div>
-            )}
-            {activationRate && (
-              <div className="bg-green-50 rounded px-1 py-1">
+              </button>
+              <button
+                onClick={onEditUserMetrics}
+                className="bg-green-50 hover:bg-green-100 rounded px-1 py-1 transition-colors"
+              >
                 <div className="text-xs text-green-400">활성율</div>
                 <div className="text-xs font-bold text-green-600">
-                  {activationRate}%
+                  {activationRate ? `${activationRate}%` : '-'}
+                </div>
+              </button>
+            </div>
+            {(avgPricePerTotal || avgPricePerActive) && (
+              <div className="grid grid-cols-2 gap-1 text-center">
+                <div className="bg-purple-50 rounded px-1 py-0.5">
+                  <div className="text-xs text-purple-400">월평균/전체</div>
+                  <div className="text-xs font-bold text-purple-600">
+                    {avgPricePerTotal ? formatMoney(avgPricePerTotal) : '-'}
+                  </div>
+                </div>
+                <div className="bg-amber-50 rounded px-1 py-0.5">
+                  <div className="text-xs text-amber-400">월평균/활성</div>
+                  <div className="text-xs font-bold text-amber-600">
+                    {avgPricePerActive ? formatMoney(avgPricePerActive) : '-'}
+                  </div>
                 </div>
               </div>
             )}
           </div>
-          {(avgPricePerTotal || avgPricePerActive) && (
-            <div className="grid grid-cols-2 gap-1 mt-1 text-center">
-              {avgPricePerTotal && (
-                <div className="bg-purple-50 rounded px-1 py-1">
-                  <div className="text-xs text-purple-400">월평균/전체</div>
-                  <div className="text-xs font-bold text-purple-600">
-                    {formatMoney(avgPricePerTotal)}
-                  </div>
-                </div>
-              )}
-              {avgPricePerActive && (
-                <div className="bg-amber-50 rounded px-1 py-1">
-                  <div className="text-xs text-amber-400">월평균/활성</div>
-                  <div className="text-xs font-bold text-amber-600">
-                    {formatMoney(avgPricePerActive)}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+        ) : (
+          <button
+            onClick={onEditUserMetrics}
+            className="w-full py-1.5 text-xs text-orange-500 bg-orange-50 hover:bg-orange-100 rounded border border-dashed border-orange-200 transition-colors"
+          >
+            👥 사용자 수 입력필요
+          </button>
+        )}
+      </div>
+
+      {/* 계약 정보 태그들 */}
+      <div className="flex flex-wrap gap-1 mt-2">
+        <ContractInfoTags info={contractInfo} onEdit={onEditContract} />
+      </div>
     </div>
   );
 }
@@ -1179,6 +1341,157 @@ function ContractInfoModal({
           <button
             onClick={handleSave}
             className="flex-1 py-2.5 text-sm bg-slate-800 text-white hover:bg-slate-700 rounded-lg transition-colors"
+          >
+            저장
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// 서브 컴포넌트: UserMetricsModal (사용자 지표 편집 모달)
+// ============================================================================
+
+interface UserMetricsModalProps {
+  client: Client;
+  currentMetrics: UserMetrics;
+  onSave: (metrics: UserMetrics | null) => void;
+  onClose: () => void;
+}
+
+function UserMetricsModal({
+  client,
+  currentMetrics,
+  onSave,
+  onClose,
+}: UserMetricsModalProps) {
+  const [activeUsers, setActiveUsers] = useState<string>(
+    currentMetrics.activeUsers?.toString() || ''
+  );
+  const [totalUsers, setTotalUsers] = useState<string>(
+    currentMetrics.totalUsers?.toString() || ''
+  );
+
+  // 계산된 지표
+  const activeNum = activeUsers ? parseInt(activeUsers, 10) : undefined;
+  const totalNum = totalUsers ? parseInt(totalUsers, 10) : undefined;
+  const activationRate =
+    activeNum && totalNum ? ((activeNum / totalNum) * 100).toFixed(1) : null;
+  const avgPricePerTotal = totalNum
+    ? Math.round(client.charge / totalNum)
+    : null;
+  const avgPricePerActive = activeNum
+    ? Math.round(client.charge / activeNum)
+    : null;
+
+  const handleSave = () => {
+    const metrics: UserMetrics = {};
+    if (activeUsers) metrics.activeUsers = parseInt(activeUsers, 10);
+    if (totalUsers) metrics.totalUsers = parseInt(totalUsers, 10);
+
+    if (Object.keys(metrics).length > 0) {
+      onSave(metrics);
+    } else {
+      onSave(null);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="font-bold text-lg mb-1">👥 사용자 수 입력</h3>
+        <p className="text-sm text-slate-500 mb-4">{client.name}</p>
+
+        {/* 입력 필드 */}
+        <div className="space-y-4 mb-5">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              활성 사용자수
+            </label>
+            <input
+              type="number"
+              value={activeUsers}
+              onChange={(e) => setActiveUsers(e.target.value)}
+              placeholder="예: 1000"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              전체 사용자수 (가입자)
+            </label>
+            <input
+              type="number"
+              value={totalUsers}
+              onChange={(e) => setTotalUsers(e.target.value)}
+              placeholder="예: 5000"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
+            />
+          </div>
+        </div>
+
+        {/* 계산된 지표 미리보기 */}
+        {(activeNum || totalNum) && (
+          <div className="mb-5 p-3 bg-slate-50 rounded-lg">
+            <div className="text-xs font-semibold text-slate-500 mb-2">
+              📊 계산된 지표
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              {activationRate && (
+                <div className="bg-green-50 rounded p-2">
+                  <div className="text-xs text-green-500">활성율</div>
+                  <div className="text-sm font-bold text-green-600">
+                    {activationRate}%
+                  </div>
+                </div>
+              )}
+              {avgPricePerTotal && (
+                <div className="bg-purple-50 rounded p-2">
+                  <div className="text-xs text-purple-500">월평균/전체</div>
+                  <div className="text-sm font-bold text-purple-600">
+                    {formatMoney(avgPricePerTotal)}
+                  </div>
+                </div>
+              )}
+              {avgPricePerActive && (
+                <div className="bg-amber-50 rounded p-2">
+                  <div className="text-xs text-amber-500">월평균/활성</div>
+                  <div className="text-sm font-bold text-amber-600">
+                    {formatMoney(avgPricePerActive)}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 버튼들 */}
+        <div className="flex gap-2">
+          {(currentMetrics.activeUsers || currentMetrics.totalUsers) && (
+            <button
+              onClick={() => onSave(null)}
+              className="flex-1 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              삭제
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 py-2.5 text-sm bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors"
           >
             저장
           </button>
