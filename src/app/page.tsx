@@ -778,12 +778,23 @@ export default function Home() {
             <h3 className="text-sm font-semibold text-slate-500 mb-3 flex items-center justify-between">
               <span>📊 {config.label} 목록</span>
               <span className="text-xs font-normal text-slate-400">
-                사용금액순 · {filteredData.length}개
+                사용금액순 · {selectedRegion?.data ? selectedRegion.data.items.length : filteredData.length}개
+                {selectedRegion?.data && (
+                  <button
+                    onClick={() => setSelectedRegion(null)}
+                    className="ml-2 text-indigo-500 hover:text-indigo-700"
+                  >
+                    (전체보기)
+                  </button>
+                )}
               </span>
             </h3>
 
             <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-              {sortedData.map((item, idx) => (
+              {(selectedRegion?.data
+                ? selectedRegion.data.items.sort((a, b) => b.charge - a.charge)
+                : sortedData
+              ).map((item, idx) => (
                 <ClientItem
                   key={idx}
                   item={item}
