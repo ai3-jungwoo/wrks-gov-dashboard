@@ -4,7 +4,7 @@
  * 실행: npx tsx scripts/migrateToSheets.ts
  */
 
-const API_URL = 'https://script.google.com/a/macros/chainpartners.net/s/AKfycbwzFO4EoVbDWBxqT98RN0i9L_xulxECBf80t5wii1HJH0StCl8YRDCfeGr82ldBgW6Brw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwzFO4EoVbDWBxqT98RN0i9L_xulxECBf80t5wii1HJH0StCl8YRDCfeGr82ldBgW6Brw/exec';
 
 interface UserMetrics {
   activeUsers?: number;
