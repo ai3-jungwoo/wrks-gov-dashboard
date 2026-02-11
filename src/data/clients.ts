@@ -218,7 +218,7 @@ export const localGovData: Client[] = [
   { name: "서초구의회", region: "서울특별시", subRegion: "서초구", charge: 27090, usage: 175 },
   { name: "부여군청", region: "충청남도", subRegion: "부여군", charge: 26628, usage: 80 },
   { name: "서귀포시", region: "제주특별자치도", subRegion: "서귀포시", charge: 25274, usage: 177 },
-  { name: "제주시청", region: "제주특별자치도", subRegion: "제주시", charge: 1867996, usage: 136146570 },
+  { name: "제주시청", region: "제주특별자치도", subRegion: "제주시", charge: 1867996, usage: 13614 },
   { name: "금천구청", region: "서울특별시", subRegion: "금천구", charge: 18078, usage: 23 },
   { name: "강진군청", region: "전라남도", subRegion: "강진군", charge: 17419, usage: 100 },
   { name: "강릉시청", region: "강원특별자치도", subRegion: "강릉시", charge: 10718, usage: 41 },
